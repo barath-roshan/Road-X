@@ -36,7 +36,10 @@ The RoadX machine learning subsystem is designed with strict modularity and sepa
 7. **Maintenance Priority Engine** (`ml/priority_engine/`)
    Synthesizes failure risk, severity ratings, traffic impact, weather vulnerability, and public complaints into an actionable, ranked maintenance queue for municipal officers.
 
-8. **Advanced Spatiotemporal Model** (Planned)
+8. **Unified ML Pipeline** (`ml/pipeline/`)
+   Orchestrates independent ML modules (Phases 2–8) into a unified inference workflow with partial execution support, failure isolation, stage profiling, and structured response outputs.
+
+9. **Advanced Spatiotemporal Model** (Planned)
    A future graph/spatiotemporal neural architecture modeling network-wide road degradation dynamics across connected urban road networks.
 
 ---
@@ -507,13 +510,60 @@ python -m ml.priority_engine.train
 # 3. Pipeline Inference Example
 python -c "from ml.priority_engine import MaintenancePriorityEngine, MaintenancePriorityInput; from ml.failure_prediction.schemas import FailurePredictionOutput, FailureRiskLevel; from ml.severity.schemas import SeverityPredictionOutput, DamageSeverityLevel; eng = MaintenancePriorityEngine(); print(eng.prioritize(MaintenancePriorityInput(road_segment_id='SEG-101', failure_prediction=FailurePredictionOutput(failure_probability=0.85, risk_level=FailureRiskLevel.HIGH, model_version='v1'), severity_prediction=SeverityPredictionOutput(severity_score=85.0, severity_level=DamageSeverityLevel.CRITICAL, model_version='v1'))).model_dump_json(indent=2))"
 
-# 4. Run Complete Automated Test Suite (153 tests)
+# 4. Run Complete Automated Test Suite (170 tests)
 pytest -v
 ```
 
 ### 5. Transparency & Development Data Notice
 > [!WARNING]
 > **DEVELOPMENT DATA DISCLAIMER:** Current priority engine rules and weights are development baselines. Final priority thresholds require calibration against historical municipal government maintenance decisions.
+
+---
+
+## Unified ML Pipeline (Phase 9)
+
+### 1. Objective & Design
+The **Unified ML Pipeline** (`ml/pipeline/`) orchestrates all independent RoadX ML modules (Phases 2–8) into a cohesive inference workflow without merging models into a single monolithic architecture or model file. Each ML module remains independently testable and reusable.
+
+```text
+                  ┌─────────────────────┐
+                  │    Pipeline Input   │
+                  └──────────┬──────────┘
+                             ↓
+                  ┌─────────────────────┐
+                  │ Input Validation    │
+                  └──────────┬──────────┘
+                             ↓
+       ┌─────────────────────┼─────────────────────┐
+       ↓                     ↓                     ↓
+ Failure Prediction    Damage Detection    Complaint Intelligence
+       ↓                     ↓                     ↓
+       │                 Severity              Embeddings
+       │                                         ↓
+       │                                  Duplicate Detection
+       ↓
+ Time-to-Failure
+       │
+       └─────────────────────┬─────────────────────┘
+                             ↓
+                 Maintenance Priority
+                             ↓
+                    Unified ML Result
+```
+
+### 2. Core Capabilities
+* **Dependency & Execution Graph**: Executes stages in logical dependency order (e.g. Damage Severity depends on Damage Detection; Duplicate Detection consumes Complaint Intelligence embeddings; Priority Engine synthesizes outputs across all stages).
+* **Failure Isolation**: A failure or exception in an optional stage (e.g. corrupted image) is isolated to that stage (marked `FAILED`), allowing remaining independent stages to execute cleanly.
+* **Partial Execution**: Supports complaint-only, road-only, image-only, or full multi-modal pipeline runs. Unsupplied inputs are cleanly `SKIPPED` without error or dummy data fabrication.
+* **Operational Latency Profiling**: Tracks per-stage execution durations (`duration_ms`) and model versions in a structured summary table.
+* **Model Instance Reuse**: Model artifacts are loaded once upon pipeline initialization and reused across requests.
+
+### 3. Execution CLI Example
+
+```bash
+# Unified Pipeline Inference Example
+python -c "from ml.pipeline import RoadXPipeline; pipe = RoadXPipeline(auto_load=True); res = pipe.run({'road_segment_id': 'SEG-101', 'complaint_text': 'Dangerous pothole near hospital.'}); print(res.model_dump_json(indent=2))"
+```
 
 ---
 
@@ -530,6 +580,7 @@ Road-X/
 │   ├── duplicate_detection/     # Duplicate complaint detection & ranking (Phase 6)
 │   ├── time_to_failure/         # Survival analysis & time-to-failure prediction (Phase 7)
 │   ├── priority_engine/         # Multi-criteria maintenance priority engine (Phase 8)
+│   ├── pipeline/                # Unified ML Pipeline orchestrator (Phase 9)
 │   │   ├── __init__.py
 │   │   ├── config.py            # Signal weights, thresholds, and guardrail rules
 │   │   ├── schemas.py           # Pydantic priority input, evidence, and output schemas

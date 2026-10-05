@@ -40,6 +40,12 @@ import pytest
         "ml.duplicate_detection",
         "ml.time_to_failure",
         "ml.priority_engine",
+        "ml.pipeline",
+        "ml.pipeline.config",
+        "ml.pipeline.schemas",
+        "ml.pipeline.context",
+        "ml.pipeline.stages",
+        "ml.pipeline.orchestrator",
     ],
 )
 def test_module_imports(module_name: str):
