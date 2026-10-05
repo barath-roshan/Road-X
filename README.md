@@ -109,6 +109,72 @@ pytest -v
 
 ---
 
+## Road Damage Detection (Phase 3 Integration)
+
+### 1. Existing Model Architecture
+RoadX integrates a pre-trained computer vision model for detecting and segmenting road defects:
+* **Model Checkpoint**: [`models/pathole_detection.pt`](file:///d:/Third%20year%20Projects/Road-X/models/pathole_detection.pt) (~179.6 MB)
+* **Framework**: Ultralytics YOLO Segmentation Model (`ultralytics.nn.tasks.SegmentationModel`)
+* **Task Type**: Object Detection & Instance Segmentation (`segment`)
+* **Detected Classes**: `{0: 'Pothole'}` (Canonical mapping: `pothole`)
+
+> **Preservation Guarantee**: RoadX does **not** retrain, rebuild, or alter the weights of this pre-existing model. It is integrated cleanly as a component of the RoadX ecosystem.
+
+### 2. Integration & Adapter Design
+To decouple RoadX from specific computer vision frameworks, inference is wrapped behind an abstract interface and dedicated adapter:
+
+```text
+Citizen Image / Image Path
+            ↓
+  RoadDamageDetector (ml/damage_detection/detector.py)
+            ↓
+ExistingPotholeModelAdapter (ml/damage_detection/adapter.py)
+            ↓
+Existing Trained Model (models/pathole_detection.pt)
+            ↓
+  RoadDamageDetectionResponse (ml/damage_detection/schemas.py)
+```
+
+### 3. Normalized Output Schema
+Regardless of underlying framework variations, downstream modules (such as Phase 4 Damage Severity Estimation) consume a unified JSON output structure:
+
+```json
+{
+  "detections": [
+    {
+      "class_name": "pothole",
+      "confidence": 0.9142,
+      "bbox": [120.0, 80.0, 420.0, 350.0],
+      "area_ratio": 0.1771,
+      "segmentation_polygon": [[120.0, 80.0], [420.0, 80.0], [420.0, 350.0], [120.0, 350.0]]
+    }
+  ],
+  "image_width": 640,
+  "image_height": 480,
+  "detection_count": 1,
+  "model_version": "v1"
+}
+```
+
+### 4. Reproducible Inference Snippet
+
+```python
+from ml.damage_detection import ExistingPotholeModelAdapter
+
+# 1. Initialize adapter (loads model checkpoint once into memory)
+detector = ExistingPotholeModelAdapter()
+
+# 2. Run detection on an image (Path, PIL Image, or BGR numpy array)
+response = detector.detect("data/raw/sample_road_test.jpg", confidence_threshold=0.25)
+
+# 3. Access normalized detections
+print(f"Detected {response.detection_count} defects.")
+for item in response.detections:
+    print(f"Class: {item.class_name}, Confidence: {item.confidence}, BBox: {item.bbox}, Area Ratio: {item.area_ratio}")
+```
+
+---
+
 ## Repository Structure
 
 ```text
