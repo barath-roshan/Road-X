@@ -225,6 +225,69 @@ pytest -v
 
 ---
 
+## Complaint Intelligence (Phase 5)
+
+### 1. Problem Formulation
+Citizen grievance reports are unstructured natural language text (e.g., *"There is a huge pothole near the railway station and bikes are falling at night"*).
+The **Complaint Intelligence** module converts unstructured text into structured ML insights to assist government officers and downstream decision models:
+* **Issue Category**: Controlled 12-class taxonomy (`POTHOLE`, `ROAD_CRACK`, `ROAD_SURFACE_DAMAGE`, `WATERLOGGING`, `FLOODING`, `STREETLIGHT`, `ACCIDENT`, `ROAD_OBSTRUCTION`, `DEBRIS`, `TRAFFIC_SIGNAL`, `ROAD_CLOSURE`, `OTHER`).
+* **Urgency Level**: 4-class response priority tier (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`).
+* **Safety Risk Level**: 3-class hazard severity tier (`LOW`, `MEDIUM`, `HIGH`).
+* **Location Entity Mention Extraction**: Regex/rule-based extraction of location mentions (`ROAD`, `LANDMARK`, `AREA`, `LOCALITY`, `BUS_STOP`, `INTERSECTION`).
+* **Semantic Embedding Generation**: Fixed-dimension ($300\text{-D}$) L2-normalized vector embedding for downstream **Phase 6 — Duplicate Complaint Detection**.
+
+> **Human-in-the-Loop Safeguard:** Model output serves as assisted intelligence and does **not** make administrative government decisions.
+
+### 2. Output Schema
+```json
+{
+  "issue_category": "POTHOLE",
+  "issue_confidence": 0.9123,
+  "urgency": "HIGH",
+  "urgency_confidence": 0.8411,
+  "safety_risk": "HIGH",
+  "safety_confidence": 0.8800,
+  "location_mentions": [
+    {
+      "text": "railway station",
+      "type": "LANDMARK",
+      "start_idx": 31,
+      "end_idx": 46
+    }
+  ],
+  "embedding_available": true,
+  "model_version": "v1"
+}
+```
+
+### 3. Model Architecture & Baselines
+* **Text Preprocessing**: `ComplaintPreprocessor` performs Unicode (NFKC) normalization, control character stripping, and whitespace normalization while preserving numbers, street names, punctuation, and key vocabulary.
+* **Vectorization**: `ComplaintFeatureExtractor` uses `TfidfVectorizer` (unigrams & bigrams, sublinear TF scaling, max 1000 features).
+* **Classifiers**: Three independent `LogisticRegression` classifiers with balanced class weights for Issue Category, Urgency Level, and Safety Risk Level, inheriting from `BaseModel`.
+* **Embedding Interface**: `ComplaintEmbedder` exposes `embed(text)` returning a shape `(300,)` float32 numpy array.
+
+### 4. Reproducible CLI Commands
+
+```bash
+# 1. Dataset Generation (Synthetic citizen complaint dataset)
+python -m ml.complaint_intelligence.generate_synthetic_data
+
+# 2. Model Training & Evaluation
+python -m ml.complaint_intelligence.train
+
+# 3. Inference Example via ComplaintAnalyzer
+python -c "from ml.complaint_intelligence import ComplaintAnalyzer; a = ComplaintAnalyzer.load(); print(a.analyze('There is a large pothole near the railway station. It is dangerous for bikes at night.').model_dump_json(indent=2))"
+
+# 4. Run Complete Automated Test Suite (111 tests)
+pytest -v
+```
+
+### 5. Development Data & Transparency Notice
+> [!WARNING]
+> **DEVELOPMENT DATA DISCLAIMER:** Current NLP results are development results based on synthetic/manually annotated data (`SYNTHETIC / MANUALLY CREATED DEVELOPMENT DATA`) and must not be interpreted as production performance on real citizen complaints. Production deployment requires collecting and annotating real-world Indian citizen complaint data.
+
+---
+
 ## Repository Structure
 
 ```text
@@ -238,20 +301,22 @@ Road-X/
 │   │   └── logging_config.py    # Structured logging configuration
 │   │
 │   ├── failure_prediction/      # Failure prediction pipeline module
-│   │   ├── __init__.py
-│   │   ├── config.py            # Feature definitions and model parameters
-│   │   ├── schemas.py           # Pydantic input/output validation schemas
-│   │   ├── preprocessing.py     # Data cleaning and input validation
-│   │   ├── features.py          # Distress index and feature extraction
-│   │   ├── model.py             # RoadFailurePredictionModel implementation skeleton
-│   │   ├── train.py             # Training pipeline entrypoint
-│   │   ├── evaluate.py          # Metric computation and evaluation utilities
-│   │   ├── predict.py           # Batch and real-time inference wrappers
-│   │   └── tests/               # Failure prediction unit tests
-│   │
 │   ├── damage_detection/        # Adapter placeholder for existing CV detector
 │   ├── severity/                # Damage severity estimation
-│   ├── complaint_intelligence/  # NLP grievance classification
+│   ├── complaint_intelligence/  # NLP grievance classification & intelligence (Phase 5)
+│   │   ├── __init__.py
+│   │   ├── config.py            # Taxonomy, vectorizer, and model settings
+│   │   ├── schemas.py           # Pydantic request/response & enum schemas
+│   │   ├── preprocessing.py     # Text cleaning & NFKC normalization
+│   │   ├── features.py          # TF-IDF feature vectorizer
+│   │   ├── location_extractor.py# Location entity mention extractor
+│   │   ├── classifiers.py       # Issue, Urgency, and SafetyRisk classifiers
+│   │   ├── embedder.py          # Semantic vector embedder interface (for Phase 6)
+│   │   ├── analyzer.py          # ComplaintAnalyzer orchestrator
+│   │   ├── train.py             # Pipeline training & artifact serialization
+│   │   ├── evaluate.py          # Precision/Recall/F1 evaluation helper
+│   │   └── tests/               # Unit test suite for Phase 5
+│   │
 │   ├── duplicate_detection/     # Spatiotemporal duplicate clustering
 │   ├── time_to_failure/         # Degradation timeline forecasting
 │   └── priority_engine/         # Multi-criteria maintenance prioritization

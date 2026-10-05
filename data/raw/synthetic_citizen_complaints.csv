@@ -1,0 +1,422 @@
+# SYNTHETIC / MANUALLY CREATED DEVELOPMENT DATA
+complaint_text,issue_category,urgency,safety_risk
+Footpath paving tiles broken near Rajajinagar 4th block. Pedestrians tripping over. Reported multiple times by local residents.,OTHER,LOW,LOW
+Skidding incident reported on Indiranagar 100ft road due to oil spill and wet pavement. Reported multiple times by local residents.,ACCIDENT,HIGH,HIGH
+Heavy waterlogging near Peenya industrial area due to poor drainage outlet. Road completely submerged.,WATERLOGGING,HIGH,HIGH
+Near-miss accident happened at Velachery main road due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Emergency pipeline work causing total road closure near MG Road junction. Reported multiple times by local residents.,ROAD_CLOSURE,HIGH,MEDIUM
+"Streetlights on Velachery main road remain off at night, creating high risk for mugging and accidents.",STREETLIGHT,HIGH,HIGH
+Fallen tree branch completely obstructing traffic lane near Whitefield main road.,ROAD_OBSTRUCTION,HIGH,HIGH
+Red light signal timer malfunctioning at Anna Nagar roundtana. Reported multiple times by local residents.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Gravel mud spill from truck near Airport road making road slippery.,DEBRIS,HIGH,HIGH
+Concrete barricades dumped randomly near Peenya industrial area creating bottleneck. Please take immediate action.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Storm drain overflow causing localized flooding near Rajajinagar 4th block.,FLOODING,HIGH,HIGH
+Footpath paving tiles broken near MG Road junction. Pedestrians tripping over.,OTHER,LOW,LOW
+Minor water pooling near Marathahalli bridge after evening showers.,WATERLOGGING,LOW,LOW
+Severe waterlogging outside Old Madras road. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Deep dangerous pothole right in the middle of Tambaram railway station. Urgent repair needed before an accident happens.,POTHOLE,CRITICAL,HIGH
+Extensive asphalt peeling and surface erosion near Tambaram railway station. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Gravel mud spill from truck near T Nagar bus stand making road slippery.,DEBRIS,HIGH,HIGH
+Pedestrian crossing signal broken near Guindy flyover.,TRAFFIC_SIGNAL,LOW,LOW
+Damaged electrical streetlight pole leaning dangerously near Peenya industrial area. Reported multiple times by local residents.,STREETLIGHT,CRITICAL,HIGH
+Severe waterlogging outside Marathahalli bridge. Pedestrians cannot cross the street. Please take immediate action.,WATERLOGGING,MEDIUM,MEDIUM
+Abandoned vehicle blocking the main road near Whitefield main road.,ROAD_OBSTRUCTION,MEDIUM,LOW
+Skidding incident reported on Coimbatore railway station due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Concrete barricades dumped randomly near Tambaram railway station creating bottleneck.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Concrete barricades dumped randomly near Gandhipuram bus stand creating bottleneck.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Uneven road top and top coat stripping observed near Old Madras road.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Extensive asphalt peeling and surface erosion near Gandhipuram bus stand. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Ditch dug across Guindy flyover rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Deep pavement cracks near Anna Nagar roundtana causing uneven driving surface.,ROAD_CRACK,MEDIUM,MEDIUM
+"Catastrophic flash flooding on Coimbatore railway station! Water level reached 2 feet, vehicles trapped!",FLOODING,CRITICAL,HIGH
+Very large crater-like pothole near Vadapalani signal. Two two-wheelers skidded yesterday night.,POTHOLE,CRITICAL,HIGH
+Storm drain overflow causing localized flooding near Anna Nagar roundtana.,FLOODING,HIGH,HIGH
+There is a huge pothole near Velachery main road causing severe traffic delays. Bikes are falling into it.,POTHOLE,HIGH,HIGH
+Flickering streetlight pole outside Marathahalli bridge. Needs bulb replacement. Please take immediate action.,STREETLIGHT,LOW,LOW
+Garbage and sharp metal debris dumped on the side of Vadapalani signal. Reported multiple times by local residents.,DEBRIS,MEDIUM,HIGH
+Footpath paving tiles broken near Anna Salai road. Pedestrians tripping over.,OTHER,LOW,LOW
+General complaint regarding noise pollution and missing street signages near Koramangala 5th block. Reported multiple times by local residents.,OTHER,LOW,LOW
+Road unannounced closure at Vadapalani signal without proper detour signages. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+Heavy waterlogging near Peenya industrial area due to poor drainage outlet. Road completely submerged. Please take immediate action.,WATERLOGGING,HIGH,HIGH
+Traffic signal lights at Velachery main road are completely down! Chaos and traffic jam at intersection.,TRAFFIC_SIGNAL,CRITICAL,HIGH
+Garbage and sharp metal debris dumped on the side of Airport road.,DEBRIS,MEDIUM,HIGH
+Heavy waterlogging near Electronic City phase 1 due to poor drainage outlet. Road completely submerged. Reported multiple times by local residents.,WATERLOGGING,HIGH,HIGH
+Deep dangerous pothole right in the middle of Old Madras road. Urgent repair needed before an accident happens.,POTHOLE,CRITICAL,HIGH
+Ditch dug across Anna Salai road rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+"Catastrophic flash flooding on Gandhipuram bus stand! Water level reached 2 feet, vehicles trapped!",FLOODING,CRITICAL,HIGH
+Deep dangerous pothole right in the middle of Vadapalani signal. Urgent repair needed before an accident happens. Reported multiple times by local residents.,POTHOLE,CRITICAL,HIGH
+Complete tar surface degradation on Coimbatore railway station. Road has worn down to loose gravel. Please take immediate action.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Skidding incident reported on Electronic City phase 1 due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Minor surface hair cracks developing along Airport road. Early maintenance recommended. Reported multiple times by local residents.,ROAD_CRACK,LOW,LOW
+Severe waterlogging outside Old Madras road. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Fallen tree branch completely obstructing traffic lane near Guindy flyover.,ROAD_OBSTRUCTION,HIGH,HIGH
+Uneven road top and top coat stripping observed near Whitefield main road.,ROAD_SURFACE_DAMAGE,LOW,LOW
+A small pothole has opened up near Anna Salai road. Please fix it before it expands. Please take immediate action.,POTHOLE,LOW,LOW
+Deep pavement cracks near Indiranagar 100ft road causing uneven driving surface.,ROAD_CRACK,MEDIUM,MEDIUM
+Pedestrian crossing signal broken near T Nagar bus stand. Please take immediate action.,TRAFFIC_SIGNAL,LOW,LOW
+Complete tar surface degradation on T Nagar bus stand. Road has worn down to loose gravel.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Potholes on Electronic City phase 1 are making commute very uncomfortable and slow.,POTHOLE,MEDIUM,LOW
+Long alligator cracks extending across Koramangala 5th block. Road surface is breaking apart. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+Storm drain overflow causing localized flooding near Airport road. Reported multiple times by local residents.,FLOODING,HIGH,HIGH
+Ditch dug across Airport road rendering road impassable for four-wheelers. Reported multiple times by local residents.,ROAD_CLOSURE,CRITICAL,HIGH
+Minor water pooling near Whitefield main road after evening showers.,WATERLOGGING,LOW,LOW
+Severe longitudinal structural crack observed on MG Road junction. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Unidentified odor and damaged manhole cover near MG Road junction.,OTHER,MEDIUM,MEDIUM
+Pedestrian crossing signal broken near Marathahalli bridge. Please take immediate action.,TRAFFIC_SIGNAL,LOW,LOW
+Ditch dug across Whitefield main road rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Multiple small potholes formed on Vadapalani signal after heavy rain. Needs patch work.,POTHOLE,MEDIUM,MEDIUM
+Road unannounced closure at Peenya industrial area without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+"Major road accident reported near Coimbatore railway station! Two vehicles collided, road blocked!",ACCIDENT,CRITICAL,HIGH
+Near-miss accident happened at Airport road due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Severe longitudinal structural crack observed on Indiranagar 100ft road. Water seepage is making it worse. Reported multiple times by local residents.,ROAD_CRACK,HIGH,MEDIUM
+"Catastrophic flash flooding on Guindy flyover! Water level reached 2 feet, vehicles trapped!",FLOODING,CRITICAL,HIGH
+Severe surface rutting and depressions near Gandhipuram bus stand. Vehicles lose balance. Please take immediate action.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Long alligator cracks extending across Koramangala 5th block. Road surface is breaking apart. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+A small pothole has opened up near MG Road junction. Please fix it before it expands.,POTHOLE,LOW,LOW
+All streetlights near T Nagar bus stand are non-functional for past 3 nights. Extremely dark and unsafe.,STREETLIGHT,HIGH,HIGH
+General complaint regarding noise pollution and missing street signages near Whitefield main road. Please take immediate action.,OTHER,LOW,LOW
+Storm drain overflow causing localized flooding near Koramangala 5th block. Please take immediate action.,FLOODING,HIGH,HIGH
+Road unannounced closure at Koramangala 5th block without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+Storm drain overflow causing localized flooding near Tambaram railway station. Please take immediate action.,FLOODING,HIGH,HIGH
+Potholes on Tambaram railway station are making commute very uncomfortable and slow. Please take immediate action.,POTHOLE,MEDIUM,LOW
+Unidentified odor and damaged manhole cover near Marathahalli bridge. Reported multiple times by local residents.,OTHER,MEDIUM,MEDIUM
+Construction debris and loose stones scattered all over Gandhipuram bus stand. Heavy dust and tire puncture hazard. Please take immediate action.,DEBRIS,MEDIUM,MEDIUM
+Uneven road top and top coat stripping observed near Anna Nagar roundtana.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Abandoned vehicle blocking the main road near Coimbatore railway station.,ROAD_OBSTRUCTION,MEDIUM,LOW
+Severe waterlogging outside Electronic City phase 1. Pedestrians cannot cross the street. Please take immediate action.,WATERLOGGING,MEDIUM,MEDIUM
+Emergency pipeline work causing total road closure near Marathahalli bridge.,ROAD_CLOSURE,HIGH,MEDIUM
+Complete tar surface degradation on Marathahalli bridge. Road has worn down to loose gravel. Please take immediate action.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+General complaint regarding noise pollution and missing street signages near Guindy flyover. Please take immediate action.,OTHER,LOW,LOW
+Unidentified odor and damaged manhole cover near Whitefield main road. Reported multiple times by local residents.,OTHER,MEDIUM,MEDIUM
+Garbage and sharp metal debris dumped on the side of Vadapalani signal. Reported multiple times by local residents.,DEBRIS,MEDIUM,HIGH
+Pedestrian crossing signal broken near Whitefield main road. Please take immediate action.,TRAFFIC_SIGNAL,LOW,LOW
+Damaged electrical streetlight pole leaning dangerously near Guindy flyover. Reported multiple times by local residents.,STREETLIGHT,CRITICAL,HIGH
+Extensive asphalt peeling and surface erosion near Hebbal flyover circle. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Near-miss accident happened at Airport road due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Garbage and sharp metal debris dumped on the side of Airport road.,DEBRIS,MEDIUM,HIGH
+Severe longitudinal structural crack observed on Coimbatore railway station. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Long alligator cracks extending across Whitefield main road. Road surface is breaking apart. Reported multiple times by local residents.,ROAD_CRACK,MEDIUM,MEDIUM
+Near-miss accident happened at MG Road junction due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Very large crater-like pothole near Velachery main road. Two two-wheelers skidded yesterday night.,POTHOLE,CRITICAL,HIGH
+Construction debris and loose stones scattered all over Vadapalani signal. Heavy dust and tire puncture hazard. Reported multiple times by local residents.,DEBRIS,MEDIUM,MEDIUM
+Construction debris and loose stones scattered all over Whitefield main road. Heavy dust and tire puncture hazard. Reported multiple times by local residents.,DEBRIS,MEDIUM,MEDIUM
+Construction debris and loose stones scattered all over Coimbatore railway station. Heavy dust and tire puncture hazard.,DEBRIS,MEDIUM,MEDIUM
+Red light signal timer malfunctioning at Vadapalani signal.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Traffic signal lights at Guindy flyover are completely down! Chaos and traffic jam at intersection.,TRAFFIC_SIGNAL,CRITICAL,HIGH
+Severe waterlogging outside Anna Salai road. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Very large crater-like pothole near Coimbatore railway station. Two two-wheelers skidded yesterday night.,POTHOLE,CRITICAL,HIGH
+Severe waterlogging outside MG Road junction. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Concrete barricades dumped randomly near Vadapalani signal creating bottleneck.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Severe surface rutting and depressions near Electronic City phase 1. Vehicles lose balance.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Minor surface hair cracks developing along Anna Salai road. Early maintenance recommended. Please take immediate action.,ROAD_CRACK,LOW,LOW
+Long alligator cracks extending across Vadapalani signal. Road surface is breaking apart. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+Red light signal timer malfunctioning at Airport road.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Red light signal timer malfunctioning at Gandhipuram bus stand. Please take immediate action.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Red light signal timer malfunctioning at MG Road junction. Please take immediate action.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Near-miss accident happened at MG Road junction due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Minor water pooling near MG Road junction after evening showers.,WATERLOGGING,LOW,LOW
+Emergency pipeline work causing total road closure near T Nagar bus stand. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+Illegal parking and unauthorized hoarding obstructing visibility at Tambaram railway station.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Uneven road top and top coat stripping observed near Velachery main road.,ROAD_SURFACE_DAMAGE,LOW,LOW
+"Streetlights on Rajajinagar 4th block remain off at night, creating high risk for mugging and accidents.",STREETLIGHT,HIGH,HIGH
+Storm drain overflow causing localized flooding near Coimbatore railway station. Reported multiple times by local residents.,FLOODING,HIGH,HIGH
+Traffic signal lights at Indiranagar 100ft road are completely down! Chaos and traffic jam at intersection.,TRAFFIC_SIGNAL,CRITICAL,HIGH
+All streetlights near Marathahalli bridge are non-functional for past 3 nights. Extremely dark and unsafe.,STREETLIGHT,HIGH,HIGH
+General complaint regarding noise pollution and missing street signages near Gandhipuram bus stand.,OTHER,LOW,LOW
+Multiple small potholes formed on Vadapalani signal after heavy rain. Needs patch work. Reported multiple times by local residents.,POTHOLE,MEDIUM,MEDIUM
+Severe longitudinal structural crack observed on Marathahalli bridge. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Long alligator cracks extending across Hebbal flyover circle. Road surface is breaking apart.,ROAD_CRACK,MEDIUM,MEDIUM
+Concrete barricades dumped randomly near Old Madras road creating bottleneck.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Minor water pooling near Anna Nagar roundtana after evening showers.,WATERLOGGING,LOW,LOW
+"Major road accident reported near Whitefield main road! Two vehicles collided, road blocked!",ACCIDENT,CRITICAL,HIGH
+Footpath paving tiles broken near Velachery main road. Pedestrians tripping over.,OTHER,LOW,LOW
+Red light signal timer malfunctioning at Koramangala 5th block.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Minor water pooling near Peenya industrial area after evening showers.,WATERLOGGING,LOW,LOW
+Near-miss accident happened at Anna Nagar roundtana due to missing signboards and poor visibility. Reported multiple times by local residents.,ACCIDENT,HIGH,HIGH
+Ditch dug across Peenya industrial area rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Footpath paving tiles broken near T Nagar bus stand. Pedestrians tripping over. Reported multiple times by local residents.,OTHER,LOW,LOW
+Footpath paving tiles broken near Indiranagar 100ft road. Pedestrians tripping over.,OTHER,LOW,LOW
+Storm drain overflow causing localized flooding near Hebbal flyover circle.,FLOODING,HIGH,HIGH
+Skidding incident reported on Rajajinagar 4th block due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Footpath paving tiles broken near T Nagar bus stand. Pedestrians tripping over.,OTHER,LOW,LOW
+Storm drain overflow causing localized flooding near Marathahalli bridge. Please take immediate action.,FLOODING,HIGH,HIGH
+Heavy waterlogging near Airport road due to poor drainage outlet. Road completely submerged.,WATERLOGGING,HIGH,HIGH
+Road unannounced closure at Peenya industrial area without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+Long alligator cracks extending across Anna Nagar roundtana. Road surface is breaking apart. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+A small pothole has opened up near MG Road junction. Please fix it before it expands.,POTHOLE,LOW,LOW
+Skidding incident reported on Coimbatore railway station due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+A small pothole has opened up near Koramangala 5th block. Please fix it before it expands.,POTHOLE,LOW,LOW
+Footpath paving tiles broken near Indiranagar 100ft road. Pedestrians tripping over. Please take immediate action.,OTHER,LOW,LOW
+Knee-deep flood water on Electronic City phase 1. Entire road stretch closed for public safety. Reported multiple times by local residents.,FLOODING,CRITICAL,HIGH
+Extensive asphalt peeling and surface erosion near Gandhipuram bus stand. Driving is extremely bumpy. Reported multiple times by local residents.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Knee-deep flood water on Airport road. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Storm drain overflow causing localized flooding near Coimbatore railway station.,FLOODING,HIGH,HIGH
+Knee-deep flood water on Coimbatore railway station. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Construction debris and loose stones scattered all over MG Road junction. Heavy dust and tire puncture hazard. Reported multiple times by local residents.,DEBRIS,MEDIUM,MEDIUM
+Footpath paving tiles broken near Anna Salai road. Pedestrians tripping over.,OTHER,LOW,LOW
+Ditch dug across Whitefield main road rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Potholes on Peenya industrial area are making commute very uncomfortable and slow. Please take immediate action.,POTHOLE,MEDIUM,LOW
+Red light signal timer malfunctioning at Marathahalli bridge.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+"Catastrophic flash flooding on Velachery main road! Water level reached 2 feet, vehicles trapped!",FLOODING,CRITICAL,HIGH
+Flickering streetlight pole outside Coimbatore railway station. Needs bulb replacement.,STREETLIGHT,LOW,LOW
+Abandoned vehicle blocking the main road near Guindy flyover.,ROAD_OBSTRUCTION,MEDIUM,LOW
+Fallen tree branch completely obstructing traffic lane near Vadapalani signal.,ROAD_OBSTRUCTION,HIGH,HIGH
+Severe longitudinal structural crack observed on Electronic City phase 1. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Gravel mud spill from truck near Marathahalli bridge making road slippery.,DEBRIS,HIGH,HIGH
+There is a huge pothole near Vadapalani signal causing severe traffic delays. Bikes are falling into it.,POTHOLE,HIGH,HIGH
+Uneven road top and top coat stripping observed near T Nagar bus stand.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Pedestrian crossing signal broken near Whitefield main road.,TRAFFIC_SIGNAL,LOW,LOW
+Footpath paving tiles broken near Whitefield main road. Pedestrians tripping over. Please take immediate action.,OTHER,LOW,LOW
+Construction debris and loose stones scattered all over Indiranagar 100ft road. Heavy dust and tire puncture hazard.,DEBRIS,MEDIUM,MEDIUM
+Extensive asphalt peeling and surface erosion near Tambaram railway station. Driving is extremely bumpy. Please take immediate action.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Severe longitudinal structural crack observed on Coimbatore railway station. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Road unannounced closure at MG Road junction without proper detour signages. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+Complete tar surface degradation on Velachery main road. Road has worn down to loose gravel.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Fallen tree branch completely obstructing traffic lane near Peenya industrial area. Reported multiple times by local residents.,ROAD_OBSTRUCTION,HIGH,HIGH
+Gravel mud spill from truck near Guindy flyover making road slippery. Reported multiple times by local residents.,DEBRIS,HIGH,HIGH
+Near-miss accident happened at Whitefield main road due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Deep dangerous pothole right in the middle of Airport road. Urgent repair needed before an accident happens.,POTHOLE,CRITICAL,HIGH
+Severe waterlogging outside Tambaram railway station. Pedestrians cannot cross the street. Reported multiple times by local residents.,WATERLOGGING,MEDIUM,MEDIUM
+Stagnant rain water logged at Velachery main road blocking two lanes of traffic.,WATERLOGGING,HIGH,MEDIUM
+"Streetlights on Hebbal flyover circle remain off at night, creating high risk for mugging and accidents.",STREETLIGHT,HIGH,HIGH
+Severe longitudinal structural crack observed on Electronic City phase 1. Water seepage is making it worse. Reported multiple times by local residents.,ROAD_CRACK,HIGH,MEDIUM
+Pedestrian crossing signal broken near T Nagar bus stand.,TRAFFIC_SIGNAL,LOW,LOW
+Illegal parking and unauthorized hoarding obstructing visibility at Hebbal flyover circle.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Ditch dug across Rajajinagar 4th block rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Damaged electrical streetlight pole leaning dangerously near Whitefield main road.,STREETLIGHT,CRITICAL,HIGH
+Unidentified odor and damaged manhole cover near Anna Nagar roundtana. Please take immediate action.,OTHER,MEDIUM,MEDIUM
+Minor water pooling near Koramangala 5th block after evening showers. Reported multiple times by local residents.,WATERLOGGING,LOW,LOW
+Skidding incident reported on Indiranagar 100ft road due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+All streetlights near MG Road junction are non-functional for past 3 nights. Extremely dark and unsafe.,STREETLIGHT,HIGH,HIGH
+Illegal parking and unauthorized hoarding obstructing visibility at Vadapalani signal.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Damaged electrical streetlight pole leaning dangerously near Peenya industrial area.,STREETLIGHT,CRITICAL,HIGH
+Pedestrian crossing signal broken near Airport road.,TRAFFIC_SIGNAL,LOW,LOW
+Red light signal timer malfunctioning at Guindy flyover. Reported multiple times by local residents.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Emergency pipeline work causing total road closure near Velachery main road.,ROAD_CLOSURE,HIGH,MEDIUM
+Concrete barricades dumped randomly near Gandhipuram bus stand creating bottleneck. Please take immediate action.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Knee-deep flood water on Koramangala 5th block. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Uneven road top and top coat stripping observed near Gandhipuram bus stand. Please take immediate action.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Minor water pooling near Old Madras road after evening showers.,WATERLOGGING,LOW,LOW
+Footpath paving tiles broken near Whitefield main road. Pedestrians tripping over.,OTHER,LOW,LOW
+Stagnant rain water logged at Hebbal flyover circle blocking two lanes of traffic.,WATERLOGGING,HIGH,MEDIUM
+Unidentified odor and damaged manhole cover near Anna Nagar roundtana. Reported multiple times by local residents.,OTHER,MEDIUM,MEDIUM
+"Streetlights on Old Madras road remain off at night, creating high risk for mugging and accidents.",STREETLIGHT,HIGH,HIGH
+Uneven road top and top coat stripping observed near Vadapalani signal.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Uneven road top and top coat stripping observed near Whitefield main road.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Skidding incident reported on Vadapalani signal due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Concrete barricades dumped randomly near Whitefield main road creating bottleneck.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Garbage and sharp metal debris dumped on the side of Airport road.,DEBRIS,MEDIUM,HIGH
+A small pothole has opened up near Old Madras road. Please fix it before it expands.,POTHOLE,LOW,LOW
+"Major road accident reported near Rajajinagar 4th block! Two vehicles collided, road blocked!",ACCIDENT,CRITICAL,HIGH
+"Streetlights on Peenya industrial area remain off at night, creating high risk for mugging and accidents. Please take immediate action.",STREETLIGHT,HIGH,HIGH
+Minor water pooling near Vadapalani signal after evening showers. Reported multiple times by local residents.,WATERLOGGING,LOW,LOW
+Severe surface rutting and depressions near Whitefield main road. Vehicles lose balance.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Concrete barricades dumped randomly near Gandhipuram bus stand creating bottleneck.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Knee-deep flood water on Gandhipuram bus stand. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Garbage and sharp metal debris dumped on the side of Anna Salai road.,DEBRIS,MEDIUM,HIGH
+Multiple small potholes formed on Gandhipuram bus stand after heavy rain. Needs patch work. Reported multiple times by local residents.,POTHOLE,MEDIUM,MEDIUM
+Severe waterlogging outside Anna Nagar roundtana. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Unidentified odor and damaged manhole cover near Rajajinagar 4th block. Reported multiple times by local residents.,OTHER,MEDIUM,MEDIUM
+Footpath paving tiles broken near Vadapalani signal. Pedestrians tripping over. Reported multiple times by local residents.,OTHER,LOW,LOW
+Long alligator cracks extending across Guindy flyover. Road surface is breaking apart.,ROAD_CRACK,MEDIUM,MEDIUM
+Flickering streetlight pole outside Indiranagar 100ft road. Needs bulb replacement.,STREETLIGHT,LOW,LOW
+Deep pavement cracks near Marathahalli bridge causing uneven driving surface. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+There is a huge pothole near Airport road causing severe traffic delays. Bikes are falling into it.,POTHOLE,HIGH,HIGH
+Long alligator cracks extending across Anna Salai road. Road surface is breaking apart.,ROAD_CRACK,MEDIUM,MEDIUM
+Minor water pooling near Anna Nagar roundtana after evening showers.,WATERLOGGING,LOW,LOW
+Pedestrian crossing signal broken near Airport road.,TRAFFIC_SIGNAL,LOW,LOW
+Concrete barricades dumped randomly near Koramangala 5th block creating bottleneck. Reported multiple times by local residents.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Illegal parking and unauthorized hoarding obstructing visibility at MG Road junction. Reported multiple times by local residents.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Knee-deep flood water on Rajajinagar 4th block. Entire road stretch closed for public safety. Please take immediate action.,FLOODING,CRITICAL,HIGH
+Garbage and sharp metal debris dumped on the side of Anna Nagar roundtana. Please take immediate action.,DEBRIS,MEDIUM,HIGH
+Near-miss accident happened at Anna Salai road due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Abandoned vehicle blocking the main road near Tambaram railway station. Please take immediate action.,ROAD_OBSTRUCTION,MEDIUM,LOW
+Gravel mud spill from truck near Koramangala 5th block making road slippery.,DEBRIS,HIGH,HIGH
+Red light signal timer malfunctioning at Indiranagar 100ft road.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Extensive asphalt peeling and surface erosion near MG Road junction. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Abandoned vehicle blocking the main road near Velachery main road.,ROAD_OBSTRUCTION,MEDIUM,LOW
+Uneven road top and top coat stripping observed near Peenya industrial area.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Minor water pooling near Guindy flyover after evening showers.,WATERLOGGING,LOW,LOW
+Construction debris and loose stones scattered all over Whitefield main road. Heavy dust and tire puncture hazard. Please take immediate action.,DEBRIS,MEDIUM,MEDIUM
+Gravel mud spill from truck near Tambaram railway station making road slippery.,DEBRIS,HIGH,HIGH
+Flickering streetlight pole outside T Nagar bus stand. Needs bulb replacement.,STREETLIGHT,LOW,LOW
+Severe surface rutting and depressions near Tambaram railway station. Vehicles lose balance. Please take immediate action.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Road unannounced closure at Koramangala 5th block without proper detour signages. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+Garbage and sharp metal debris dumped on the side of Anna Salai road. Reported multiple times by local residents.,DEBRIS,MEDIUM,HIGH
+Skidding incident reported on Rajajinagar 4th block due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Storm drain overflow causing localized flooding near Vadapalani signal.,FLOODING,HIGH,HIGH
+Garbage and sharp metal debris dumped on the side of Vadapalani signal.,DEBRIS,MEDIUM,HIGH
+Ditch dug across Velachery main road rendering road impassable for four-wheelers. Please take immediate action.,ROAD_CLOSURE,CRITICAL,HIGH
+Severe waterlogging outside Guindy flyover. Pedestrians cannot cross the street. Reported multiple times by local residents.,WATERLOGGING,MEDIUM,MEDIUM
+Pedestrian crossing signal broken near Marathahalli bridge.,TRAFFIC_SIGNAL,LOW,LOW
+Garbage and sharp metal debris dumped on the side of Electronic City phase 1.,DEBRIS,MEDIUM,HIGH
+Deep pavement cracks near Anna Nagar roundtana causing uneven driving surface.,ROAD_CRACK,MEDIUM,MEDIUM
+Heavy waterlogging near Guindy flyover due to poor drainage outlet. Road completely submerged.,WATERLOGGING,HIGH,HIGH
+Red light signal timer malfunctioning at Whitefield main road. Please take immediate action.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Gravel mud spill from truck near Anna Salai road making road slippery.,DEBRIS,HIGH,HIGH
+Garbage and sharp metal debris dumped on the side of Velachery main road.,DEBRIS,MEDIUM,HIGH
+Deep pavement cracks near Guindy flyover causing uneven driving surface.,ROAD_CRACK,MEDIUM,MEDIUM
+Emergency pipeline work causing total road closure near Old Madras road.,ROAD_CLOSURE,HIGH,MEDIUM
+Fallen tree branch completely obstructing traffic lane near Peenya industrial area. Please take immediate action.,ROAD_OBSTRUCTION,HIGH,HIGH
+Unidentified odor and damaged manhole cover near Airport road.,OTHER,MEDIUM,MEDIUM
+Heavy waterlogging near Marathahalli bridge due to poor drainage outlet. Road completely submerged. Please take immediate action.,WATERLOGGING,HIGH,HIGH
+Garbage and sharp metal debris dumped on the side of Anna Salai road. Please take immediate action.,DEBRIS,MEDIUM,HIGH
+Stagnant rain water logged at Vadapalani signal blocking two lanes of traffic. Reported multiple times by local residents.,WATERLOGGING,HIGH,MEDIUM
+Stagnant rain water logged at MG Road junction blocking two lanes of traffic.,WATERLOGGING,HIGH,MEDIUM
+Deep pavement cracks near Anna Salai road causing uneven driving surface. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+Footpath paving tiles broken near Old Madras road. Pedestrians tripping over.,OTHER,LOW,LOW
+Illegal parking and unauthorized hoarding obstructing visibility at Old Madras road. Please take immediate action.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Emergency pipeline work causing total road closure near Anna Nagar roundtana. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+There is a huge pothole near Vadapalani signal causing severe traffic delays. Bikes are falling into it.,POTHOLE,HIGH,HIGH
+Long alligator cracks extending across MG Road junction. Road surface is breaking apart.,ROAD_CRACK,MEDIUM,MEDIUM
+Severe waterlogging outside Whitefield main road. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Knee-deep flood water on Old Madras road. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+"Catastrophic flash flooding on Electronic City phase 1! Water level reached 2 feet, vehicles trapped!",FLOODING,CRITICAL,HIGH
+Red light signal timer malfunctioning at Tambaram railway station.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Construction debris and loose stones scattered all over Anna Salai road. Heavy dust and tire puncture hazard.,DEBRIS,MEDIUM,MEDIUM
+Concrete barricades dumped randomly near Indiranagar 100ft road creating bottleneck. Please take immediate action.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Complete tar surface degradation on Electronic City phase 1. Road has worn down to loose gravel.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Long alligator cracks extending across MG Road junction. Road surface is breaking apart.,ROAD_CRACK,MEDIUM,MEDIUM
+Construction debris and loose stones scattered all over Rajajinagar 4th block. Heavy dust and tire puncture hazard.,DEBRIS,MEDIUM,MEDIUM
+All streetlights near Indiranagar 100ft road are non-functional for past 3 nights. Extremely dark and unsafe. Please take immediate action.,STREETLIGHT,HIGH,HIGH
+All streetlights near Hebbal flyover circle are non-functional for past 3 nights. Extremely dark and unsafe.,STREETLIGHT,HIGH,HIGH
+Near-miss accident happened at Vadapalani signal due to missing signboards and poor visibility. Reported multiple times by local residents.,ACCIDENT,HIGH,HIGH
+Uneven road top and top coat stripping observed near Guindy flyover. Please take immediate action.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Multiple small potholes formed on MG Road junction after heavy rain. Needs patch work. Reported multiple times by local residents.,POTHOLE,MEDIUM,MEDIUM
+All streetlights near Old Madras road are non-functional for past 3 nights. Extremely dark and unsafe.,STREETLIGHT,HIGH,HIGH
+All streetlights near Tambaram railway station are non-functional for past 3 nights. Extremely dark and unsafe.,STREETLIGHT,HIGH,HIGH
+Damaged electrical streetlight pole leaning dangerously near Rajajinagar 4th block. Reported multiple times by local residents.,STREETLIGHT,CRITICAL,HIGH
+Heavy waterlogging near Vadapalani signal due to poor drainage outlet. Road completely submerged.,WATERLOGGING,HIGH,HIGH
+Ditch dug across Indiranagar 100ft road rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Severe longitudinal structural crack observed on Anna Salai road. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Potholes on Vadapalani signal are making commute very uncomfortable and slow. Please take immediate action.,POTHOLE,MEDIUM,LOW
+"Major road accident reported near Whitefield main road! Two vehicles collided, road blocked!",ACCIDENT,CRITICAL,HIGH
+Unidentified odor and damaged manhole cover near Whitefield main road. Reported multiple times by local residents.,OTHER,MEDIUM,MEDIUM
+Multiple small potholes formed on Old Madras road after heavy rain. Needs patch work.,POTHOLE,MEDIUM,MEDIUM
+Complete tar surface degradation on Coimbatore railway station. Road has worn down to loose gravel. Please take immediate action.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Abandoned vehicle blocking the main road near Rajajinagar 4th block. Please take immediate action.,ROAD_OBSTRUCTION,MEDIUM,LOW
+Damaged electrical streetlight pole leaning dangerously near Airport road.,STREETLIGHT,CRITICAL,HIGH
+Damaged electrical streetlight pole leaning dangerously near Peenya industrial area. Please take immediate action.,STREETLIGHT,CRITICAL,HIGH
+Minor surface hair cracks developing along Guindy flyover. Early maintenance recommended.,ROAD_CRACK,LOW,LOW
+There is a huge pothole near Hebbal flyover circle causing severe traffic delays. Bikes are falling into it.,POTHOLE,HIGH,HIGH
+Storm drain overflow causing localized flooding near Vadapalani signal.,FLOODING,HIGH,HIGH
+"Major road accident reported near T Nagar bus stand! Two vehicles collided, road blocked! Reported multiple times by local residents.",ACCIDENT,CRITICAL,HIGH
+Road unannounced closure at Whitefield main road without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+Ditch dug across Marathahalli bridge rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Construction debris and loose stones scattered all over Anna Salai road. Heavy dust and tire puncture hazard.,DEBRIS,MEDIUM,MEDIUM
+"Streetlights on Vadapalani signal remain off at night, creating high risk for mugging and accidents. Please take immediate action.",STREETLIGHT,HIGH,HIGH
+"Major road accident reported near Peenya industrial area! Two vehicles collided, road blocked!",ACCIDENT,CRITICAL,HIGH
+Extensive asphalt peeling and surface erosion near MG Road junction. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Near-miss accident happened at Airport road due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Red light signal timer malfunctioning at Velachery main road.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+"Major road accident reported near Rajajinagar 4th block! Two vehicles collided, road blocked!",ACCIDENT,CRITICAL,HIGH
+Knee-deep flood water on Airport road. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Storm drain overflow causing localized flooding near Anna Salai road.,FLOODING,HIGH,HIGH
+Storm drain overflow causing localized flooding near Coimbatore railway station.,FLOODING,HIGH,HIGH
+Ditch dug across Old Madras road rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Long alligator cracks extending across Marathahalli bridge. Road surface is breaking apart.,ROAD_CRACK,MEDIUM,MEDIUM
+Knee-deep flood water on Peenya industrial area. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Road unannounced closure at Hebbal flyover circle without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+Emergency pipeline work causing total road closure near Guindy flyover. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+Extensive asphalt peeling and surface erosion near Velachery main road. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Gravel mud spill from truck near Anna Nagar roundtana making road slippery.,DEBRIS,HIGH,HIGH
+Near-miss accident happened at Anna Salai road due to missing signboards and poor visibility. Please take immediate action.,ACCIDENT,HIGH,HIGH
+Severe longitudinal structural crack observed on Indiranagar 100ft road. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Skidding incident reported on Anna Salai road due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Severe longitudinal structural crack observed on Tambaram railway station. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+Severe waterlogging outside Hebbal flyover circle. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Concrete barricades dumped randomly near Gandhipuram bus stand creating bottleneck.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Traffic signal lights at Indiranagar 100ft road are completely down! Chaos and traffic jam at intersection. Please take immediate action.,TRAFFIC_SIGNAL,CRITICAL,HIGH
+Pedestrian crossing signal broken near Velachery main road. Please take immediate action.,TRAFFIC_SIGNAL,LOW,LOW
+Illegal parking and unauthorized hoarding obstructing visibility at Anna Nagar roundtana.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+General complaint regarding noise pollution and missing street signages near Coimbatore railway station.,OTHER,LOW,LOW
+Emergency pipeline work causing total road closure near Peenya industrial area. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+Flickering streetlight pole outside Gandhipuram bus stand. Needs bulb replacement.,STREETLIGHT,LOW,LOW
+Near-miss accident happened at Tambaram railway station due to missing signboards and poor visibility. Please take immediate action.,ACCIDENT,HIGH,HIGH
+"Streetlights on Whitefield main road remain off at night, creating high risk for mugging and accidents.",STREETLIGHT,HIGH,HIGH
+Near-miss accident happened at Peenya industrial area due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+All streetlights near Coimbatore railway station are non-functional for past 3 nights. Extremely dark and unsafe.,STREETLIGHT,HIGH,HIGH
+Deep pavement cracks near Indiranagar 100ft road causing uneven driving surface. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+Severe waterlogging outside Tambaram railway station. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+Knee-deep flood water on Electronic City phase 1. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Traffic signal lights at Gandhipuram bus stand are completely down! Chaos and traffic jam at intersection. Please take immediate action.,TRAFFIC_SIGNAL,CRITICAL,HIGH
+Deep dangerous pothole right in the middle of Vadapalani signal. Urgent repair needed before an accident happens.,POTHOLE,CRITICAL,HIGH
+Unidentified odor and damaged manhole cover near Hebbal flyover circle. Please take immediate action.,OTHER,MEDIUM,MEDIUM
+Knee-deep flood water on Old Madras road. Entire road stretch closed for public safety. Please take immediate action.,FLOODING,CRITICAL,HIGH
+Uneven road top and top coat stripping observed near Marathahalli bridge.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Traffic signal lights at Whitefield main road are completely down! Chaos and traffic jam at intersection.,TRAFFIC_SIGNAL,CRITICAL,HIGH
+Road unannounced closure at Koramangala 5th block without proper detour signages. Reported multiple times by local residents.,ROAD_CLOSURE,HIGH,MEDIUM
+Unidentified odor and damaged manhole cover near Anna Nagar roundtana. Please take immediate action.,OTHER,MEDIUM,MEDIUM
+Skidding incident reported on Electronic City phase 1 due to oil spill and wet pavement. Reported multiple times by local residents.,ACCIDENT,HIGH,HIGH
+Footpath paving tiles broken near Vadapalani signal. Pedestrians tripping over.,OTHER,LOW,LOW
+All streetlights near Anna Salai road are non-functional for past 3 nights. Extremely dark and unsafe. Please take immediate action.,STREETLIGHT,HIGH,HIGH
+Abandoned vehicle blocking the main road near Electronic City phase 1.,ROAD_OBSTRUCTION,MEDIUM,LOW
+"Catastrophic flash flooding on Electronic City phase 1! Water level reached 2 feet, vehicles trapped!",FLOODING,CRITICAL,HIGH
+Knee-deep flood water on Velachery main road. Entire road stretch closed for public safety. Please take immediate action.,FLOODING,CRITICAL,HIGH
+A small pothole has opened up near Coimbatore railway station. Please fix it before it expands. Please take immediate action.,POTHOLE,LOW,LOW
+Severe surface rutting and depressions near Koramangala 5th block. Vehicles lose balance. Reported multiple times by local residents.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Ditch dug across Tambaram railway station rendering road impassable for four-wheelers.,ROAD_CLOSURE,CRITICAL,HIGH
+Uneven road top and top coat stripping observed near Velachery main road.,ROAD_SURFACE_DAMAGE,LOW,LOW
+"Catastrophic flash flooding on Velachery main road! Water level reached 2 feet, vehicles trapped! Reported multiple times by local residents.",FLOODING,CRITICAL,HIGH
+A small pothole has opened up near Coimbatore railway station. Please fix it before it expands.,POTHOLE,LOW,LOW
+Skidding incident reported on Guindy flyover due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Multiple small potholes formed on Koramangala 5th block after heavy rain. Needs patch work. Please take immediate action.,POTHOLE,MEDIUM,MEDIUM
+Severe longitudinal structural crack observed on Hebbal flyover circle. Water seepage is making it worse. Please take immediate action.,ROAD_CRACK,HIGH,MEDIUM
+Extensive asphalt peeling and surface erosion near Velachery main road. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Pedestrian crossing signal broken near Tambaram railway station. Reported multiple times by local residents.,TRAFFIC_SIGNAL,LOW,LOW
+Illegal parking and unauthorized hoarding obstructing visibility at MG Road junction.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Road unannounced closure at Vadapalani signal without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+Near-miss accident happened at Peenya industrial area due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Ditch dug across Velachery main road rendering road impassable for four-wheelers. Please take immediate action.,ROAD_CLOSURE,CRITICAL,HIGH
+Extensive asphalt peeling and surface erosion near Indiranagar 100ft road. Driving is extremely bumpy.,ROAD_SURFACE_DAMAGE,MEDIUM,MEDIUM
+Red light signal timer malfunctioning at Electronic City phase 1.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+"Catastrophic flash flooding on MG Road junction! Water level reached 2 feet, vehicles trapped!",FLOODING,CRITICAL,HIGH
+Fallen tree branch completely obstructing traffic lane near Peenya industrial area.,ROAD_OBSTRUCTION,HIGH,HIGH
+General complaint regarding noise pollution and missing street signages near Velachery main road.,OTHER,LOW,LOW
+General complaint regarding noise pollution and missing street signages near Guindy flyover. Reported multiple times by local residents.,OTHER,LOW,LOW
+Severe longitudinal structural crack observed on MG Road junction. Water seepage is making it worse.,ROAD_CRACK,HIGH,MEDIUM
+"Catastrophic flash flooding on Rajajinagar 4th block! Water level reached 2 feet, vehicles trapped! Reported multiple times by local residents.",FLOODING,CRITICAL,HIGH
+Road unannounced closure at Peenya industrial area without proper detour signages. Please take immediate action.,ROAD_CLOSURE,HIGH,MEDIUM
+Construction debris and loose stones scattered all over MG Road junction. Heavy dust and tire puncture hazard.,DEBRIS,MEDIUM,MEDIUM
+Long alligator cracks extending across Airport road. Road surface is breaking apart. Please take immediate action.,ROAD_CRACK,MEDIUM,MEDIUM
+Traffic signal lights at MG Road junction are completely down! Chaos and traffic jam at intersection.,TRAFFIC_SIGNAL,CRITICAL,HIGH
+Pedestrian crossing signal broken near T Nagar bus stand.,TRAFFIC_SIGNAL,LOW,LOW
+Road unannounced closure at Koramangala 5th block without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+Footpath paving tiles broken near Anna Nagar roundtana. Pedestrians tripping over.,OTHER,LOW,LOW
+Flickering streetlight pole outside Hebbal flyover circle. Needs bulb replacement.,STREETLIGHT,LOW,LOW
+Footpath paving tiles broken near Peenya industrial area. Pedestrians tripping over.,OTHER,LOW,LOW
+"Streetlights on Airport road remain off at night, creating high risk for mugging and accidents.",STREETLIGHT,HIGH,HIGH
+Multiple small potholes formed on Airport road after heavy rain. Needs patch work. Please take immediate action.,POTHOLE,MEDIUM,MEDIUM
+Road unannounced closure at Tambaram railway station without proper detour signages.,ROAD_CLOSURE,HIGH,MEDIUM
+Severe waterlogging outside Peenya industrial area. Pedestrians cannot cross the street.,WATERLOGGING,MEDIUM,MEDIUM
+"Streetlights on MG Road junction remain off at night, creating high risk for mugging and accidents. Reported multiple times by local residents.",STREETLIGHT,HIGH,HIGH
+Damaged electrical streetlight pole leaning dangerously near Guindy flyover. Please take immediate action.,STREETLIGHT,CRITICAL,HIGH
+Red light signal timer malfunctioning at Whitefield main road. Reported multiple times by local residents.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Very large crater-like pothole near Koramangala 5th block. Two two-wheelers skidded yesterday night.,POTHOLE,CRITICAL,HIGH
+Near-miss accident happened at Hebbal flyover circle due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+"Streetlights on Guindy flyover remain off at night, creating high risk for mugging and accidents.",STREETLIGHT,HIGH,HIGH
+There is a huge pothole near Peenya industrial area causing severe traffic delays. Bikes are falling into it.,POTHOLE,HIGH,HIGH
+Gravel mud spill from truck near MG Road junction making road slippery.,DEBRIS,HIGH,HIGH
+General complaint regarding noise pollution and missing street signages near Peenya industrial area.,OTHER,LOW,LOW
+Concrete barricades dumped randomly near Tambaram railway station creating bottleneck. Please take immediate action.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Concrete barricades dumped randomly near MG Road junction creating bottleneck. Reported multiple times by local residents.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Illegal parking and unauthorized hoarding obstructing visibility at Airport road.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Potholes on Coimbatore railway station are making commute very uncomfortable and slow.,POTHOLE,MEDIUM,LOW
+Flickering streetlight pole outside Coimbatore railway station. Needs bulb replacement. Please take immediate action.,STREETLIGHT,LOW,LOW
+Illegal parking and unauthorized hoarding obstructing visibility at Whitefield main road.,ROAD_OBSTRUCTION,MEDIUM,MEDIUM
+Minor surface hair cracks developing along Hebbal flyover circle. Early maintenance recommended.,ROAD_CRACK,LOW,LOW
+Red light signal timer malfunctioning at T Nagar bus stand. Reported multiple times by local residents.,TRAFFIC_SIGNAL,MEDIUM,MEDIUM
+Pedestrian crossing signal broken near Anna Salai road.,TRAFFIC_SIGNAL,LOW,LOW
+Complete tar surface degradation on Old Madras road. Road has worn down to loose gravel.,ROAD_SURFACE_DAMAGE,HIGH,HIGH
+Near-miss accident happened at Old Madras road due to missing signboards and poor visibility.,ACCIDENT,HIGH,HIGH
+Gravel mud spill from truck near Velachery main road making road slippery.,DEBRIS,HIGH,HIGH
+Footpath paving tiles broken near Whitefield main road. Pedestrians tripping over. Reported multiple times by local residents.,OTHER,LOW,LOW
+Flickering streetlight pole outside Koramangala 5th block. Needs bulb replacement. Please take immediate action.,STREETLIGHT,LOW,LOW
+Garbage and sharp metal debris dumped on the side of Peenya industrial area.,DEBRIS,MEDIUM,HIGH
+Potholes on Airport road are making commute very uncomfortable and slow. Please take immediate action.,POTHOLE,MEDIUM,LOW
+Skidding incident reported on Gandhipuram bus stand due to oil spill and wet pavement.,ACCIDENT,HIGH,HIGH
+Knee-deep flood water on MG Road junction. Entire road stretch closed for public safety.,FLOODING,CRITICAL,HIGH
+Uneven road top and top coat stripping observed near Hebbal flyover circle. Please take immediate action.,ROAD_SURFACE_DAMAGE,LOW,LOW
+Emergency pipeline work causing total road closure near Indiranagar 100ft road.,ROAD_CLOSURE,HIGH,MEDIUM
+Heavy waterlogging near Airport road due to poor drainage outlet. Road completely submerged.,WATERLOGGING,HIGH,HIGH
+Construction debris and loose stones scattered all over Peenya industrial area. Heavy dust and tire puncture hazard. Please take immediate action.,DEBRIS,MEDIUM,MEDIUM

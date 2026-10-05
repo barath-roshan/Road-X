@@ -67,6 +67,7 @@ data/raw/*
 !data/raw/.gitkeep
 !data/raw/synthetic_road_failure_data.csv
 !data/raw/synthetic_damage_severity_data.csv
+!data/raw/synthetic_citizen_complaints.csv
 data/processed/*
 !data/processed/.gitkeep
 data/external/*
@@ -78,3 +79,5 @@ models/*
 !models/failure_prediction/**
 !models/severity/
 !models/severity/**
+!models/complaint_intelligence/
+!models/complaint_intelligence/**
