@@ -420,6 +420,103 @@ pytest -v
 
 ---
 
+## Maintenance Priority Engine (Phase 8)
+
+### 1. Problem Formulation
+The **Maintenance Priority Engine** synthesizes heterogeneous multi-signal predictions across all preceding ML modules (Phases 2–7) into a unified, actionable maintenance priority score (0.0 to 100.0) and administrative priority level (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`):
+
+> **Core Objective:** *"Which road maintenance case should government engineers prioritize first, and what evidence supports that priority recommendation?"*
+
+```text
+Phase 2: Road Failure Probability & Risk Level
+Phase 4: Physical Damage Severity Score & Level
+Phase 5: Complaint Intelligence Urgency, Safety Risk & Category
+Phase 6: Duplicate Complaint Volume & Evidence
+Phase 7: Time-to-Failure Horizon & Survival Probabilities
+                        │
+                        ▼
+           Maintenance Priority Engine
+                        │
+                        ├── Dynamic Signal Weight Normalization
+                        ├── Safety-First Guardrail Rule Enforcement
+                        └── Grounded Evidence Explanation Generation
+                        │
+                        ▼
+      Recommended Priority Level & Score + Evidence
+                        │
+                        ▼
+          Government Administrative Officer Review
+```
+
+> [!IMPORTANT]
+> **Government Human-in-the-Loop Governance:** The priority engine recommends maintenance priorities for officer review; **it does not make final administrative decisions or automatically dispatch work orders.**
+
+### 2. Output Schema
+```json
+{
+  "road_segment_id": "SEG-0042",
+  "complaint_id": "COMP-0101",
+  "priority_score": 88.5,
+  "priority_level": "CRITICAL",
+  "evidence": {
+    "failure_probability": 0.85,
+    "failure_risk_level": "HIGH",
+    "severity_score": 82.0,
+    "severity_level": "CRITICAL",
+    "safety_risk": "HIGH",
+    "urgency": "HIGH",
+    "issue_category": "POTHOLE",
+    "related_complaint_count": 4,
+    "estimated_time_to_failure_days": 18.5,
+    "survival_probability_30d": 0.3521,
+    "traffic_volume": 25000.0
+  },
+  "reasons": [
+    "High predicted road failure risk (85.0% failure probability within 30 days).",
+    "Severe physical pavement damage detected (Severity Score: 82.0/100).",
+    "High public safety hazard risk identified in citizen complaint report.",
+    "Short remaining operational lifespan before structural failure (18.5 days remaining).",
+    "Multiple duplicate citizen reports logged addressing this issue (4 related complaints).",
+    "Safety Guardrail Triggered: Critical damage severity or structural failure risk enforces CRITICAL priority."
+  ],
+  "missing_evidence_notices": [],
+  "requires_government_review": true,
+  "model_version": "v1",
+  "disclaimer": "AI recommends maintenance priority for assisted government review. Final work order dispatch requires government officer approval."
+}
+```
+
+### 3. Engine Architecture & Safety-First Guardrails
+* **`PriorityNormalizer`**: Scales multi-scale signals (probabilities, severity 0-100, remaining days, complaint counts) into a uniform 0.0 - 100.0 scale. Handles missing signals gracefully without assigning 0 risk.
+* **`PriorityRuleEngine`**: Enforces Safety-First Guardrails to prevent severe hazards from being diluted by low traffic:
+  - `IF safety_risk == HIGH` $\implies$ Min Score: 65.0, Min Level: `HIGH`
+  - `IF urgency == CRITICAL` $\implies$ Min Score: 75.0, Min Level: `HIGH`
+  - `IF severity_level == CRITICAL` OR `failure_risk_level == CRITICAL` $\implies$ Min Score: 80.0, Level: `CRITICAL`
+  - `IF estimated_time_to_failure_days <= 14.0` $\implies$ Min Score: 70.0, Min Level: `HIGH`
+* **`PriorityExplainer`**: Generates human-readable evidence bullet points strictly grounded in input data.
+
+### 4. Reproducible CLI Commands
+
+```bash
+# 1. Dataset Generation (Synthetic maintenance priority scenarios)
+python -m ml.priority_engine.generate_synthetic_data
+
+# 2. Pipeline Initialization & Invariant Check
+python -m ml.priority_engine.train
+
+# 3. Pipeline Inference Example
+python -c "from ml.priority_engine import MaintenancePriorityEngine, MaintenancePriorityInput; from ml.failure_prediction.schemas import FailurePredictionOutput, FailureRiskLevel; from ml.severity.schemas import SeverityPredictionOutput, DamageSeverityLevel; eng = MaintenancePriorityEngine(); print(eng.prioritize(MaintenancePriorityInput(road_segment_id='SEG-101', failure_prediction=FailurePredictionOutput(failure_probability=0.85, risk_level=FailureRiskLevel.HIGH, model_version='v1'), severity_prediction=SeverityPredictionOutput(severity_score=85.0, severity_level=DamageSeverityLevel.CRITICAL, model_version='v1'))).model_dump_json(indent=2))"
+
+# 4. Run Complete Automated Test Suite (153 tests)
+pytest -v
+```
+
+### 5. Transparency & Development Data Notice
+> [!WARNING]
+> **DEVELOPMENT DATA DISCLAIMER:** Current priority engine rules and weights are development baselines. Final priority thresholds require calibration against historical municipal government maintenance decisions.
+
+---
+
 ## Repository Structure
 
 ```text
@@ -432,19 +529,18 @@ Road-X/
 │   ├── complaint_intelligence/  # NLP grievance classification & intelligence (Phase 5)
 │   ├── duplicate_detection/     # Duplicate complaint detection & ranking (Phase 6)
 │   ├── time_to_failure/         # Survival analysis & time-to-failure prediction (Phase 7)
+│   ├── priority_engine/         # Multi-criteria maintenance priority engine (Phase 8)
 │   │   ├── __init__.py
-│   │   ├── config.py            # Feature names, evaluation horizons, and risk bounds
-│   │   ├── schemas.py           # Pydantic input/output & survival probability schemas
-│   │   ├── preprocessing.py     # Median imputation & StandardScaler pipeline
-│   │   ├── features.py          # Civil engineering distress feature builder
-│   │   ├── survival_model.py    # Kaplan-Meier estimator & Weibull AFT survival model
-│   │   ├── predictor.py         # TimeToFailurePredictor pipeline orchestrator
-│   │   ├── train.py             # Model training & artifact serialization
-│   │   ├── evaluate.py          # Harrell's C-Index, MAE, and RMSE evaluation helper
-│   │   ├── generate_synthetic_data.py # Synthetic survival telemetry generator
-│   │   └── tests/               # 11 unit tests covering survival prediction
-│   │
-│   └── priority_engine/         # Multi-criteria maintenance prioritization
+│   │   ├── config.py            # Signal weights, thresholds, and guardrail rules
+│   │   ├── schemas.py           # Pydantic priority input, evidence, and output schemas
+│   │   ├── normalizer.py        # Signal extractor and 0-100 normalizer
+│   │   ├── rules.py             # Safety-First guardrail rule engine
+│   │   ├── scorer.py            # Dynamic composite priority scorer
+│   │   ├── explainer.py         # Human-readable evidence reasoning generator
+│   │   ├── engine.py            # MaintenancePriorityEngine pipeline orchestrator
+│   │   ├── train.py             # Pipeline metadata initialization & verification
+│   │   ├── evaluate.py          # System invariants & rule compliance helper
+│   │   └── tests/               # 11 unit tests covering priority scoring
 │
 ├── data/                        # Data directories (tracked via .gitkeep)
 │   ├── raw/
