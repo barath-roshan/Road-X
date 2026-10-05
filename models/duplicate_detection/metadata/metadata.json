@@ -1,0 +1,23 @@
+{
+  "dataset_type": "SYNTHETIC / MANUALLY CREATED DEVELOPMENT DATA",
+  "disclaimer": "Current duplicate detection results are development results based on synthetic data and must not be interpreted as production performance on real citizen complaints.",
+  "created_at": "2026-10-05T16:34:32.343388+00:00",
+  "model_version": "v1",
+  "n_train_pairs": 240,
+  "n_test_pairs": 60,
+  "threshold": 0.65,
+  "metrics": {
+    "heuristic_baseline": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0
+    },
+    "supervised_scorer": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "pr_auc": 1.0,
+      "roc_auc": 1.0
+    }
+  }
+}

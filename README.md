@@ -288,36 +288,98 @@ pytest -v
 
 ---
 
+## Duplicate Complaint Detection (Phase 6)
+
+### 1. Problem Formulation
+Citizen complaints frequently address the same underlying road hazard (e.g., multiple citizens reporting the same dangerous pothole near a bus stop).
+The **Duplicate Complaint Detection** module identifies and ranks existing historical complaints that likely represent the same real-world incident by fusing:
+1. **Semantic Text Similarity**: Cosine similarity computed over Phase 5 $300\text{-D}$ `ComplaintEmbedder` vectors.
+2. **Geographic Proximity**: Haversine surface distance in meters ($d_{\text{meters}}$) with exponential decay: $\text{geo\_score} = \exp(-d / d_0)$ where $d_0 = 500\text{m}$.
+3. **Temporal Proximity**: Time separation in hours ($\Delta t_{\text{hours}}$) with exponential decay: $\text{time\_score} = \exp(-\Delta t / t_0)$ where $t_0 = 168\text{h}$ ($7\text{ days}$).
+4. **Issue Category Alignment**: Category match indicator.
+
+> [!IMPORTANT]
+> **Government Human-in-the-Loop Governance:** The system flags duplicate candidates with detailed evidence for municipal officer review. **Automatic complaint merging, deletion, or status mutation is strictly prohibited.**
+
+### 2. Output Schema
+```json
+{
+  "grievance_id": "GRV-NEW-101",
+  "duplicate_score": 0.9125,
+  "is_duplicate_candidate": true,
+  "possible_duplicate_grievance_ids": ["GRV-EXISTING-202"],
+  "candidates": [
+    {
+      "grievance_id": "GRV-EXISTING-202",
+      "duplicate_score": 0.9125,
+      "is_candidate": true,
+      "evidence": {
+        "text_similarity": 0.9500,
+        "distance_m": 45.20,
+        "time_difference_hours": 3.50,
+        "same_issue_category": true
+      }
+    }
+  ],
+  "model_version": "v1",
+  "disclaimer": "AI identifies duplicate candidates for assisted government review. Automatic complaint merging is strictly prohibited."
+}
+```
+
+### 3. Pipeline Architecture
+* **`DuplicateCandidateRetriever`**: Modular candidate filtering component (in-memory candidate pool supporting future FAISS/Pinecone/Chroma integration without API changes). Excludes self-matches.
+* **`SimilarityCalculator`**: Reuses Phase 5 `ComplaintEmbedder` to compute cosine similarity without rebuilding embedding models.
+* **`GeographicTemporalFeatureBuilder`**: Calculates Haversine distance in meters and temporal difference in hours. Gracefully handles missing coordinates or timestamps without fabricating data.
+* **`DuplicateScorer`**: Features dynamic weight normalization when spatial or temporal features are absent, and supports supervised `LogisticRegression` classification.
+* **`DuplicateDetector`**: Pipeline orchestrator returning sorted candidate lists and evidence.
+
+### 4. Reproducible CLI Commands
+
+```bash
+# 1. Dataset Generation (Synthetic duplicate complaint pairs)
+python -m ml.duplicate_detection.generate_synthetic_data
+
+# 2. Model Training & Baseline Evaluation
+python -m ml.duplicate_detection.train
+
+# 3. Pipeline Inference Example
+python -c "from ml.duplicate_detection import DuplicateDetector, ComplaintRecord; det = DuplicateDetector.load(); c1 = ComplaintRecord(grievance_id='GRV-1', text='Huge pothole near bus stand', latitude=13.0827, longitude=80.2707); c2 = ComplaintRecord(grievance_id='GRV-2', text='Large pothole near bus stop causing delays', latitude=13.0828, longitude=80.2708); print(det.detect_duplicates(c1, [c2]).model_dump_json(indent=2))"
+
+# 4. Run Complete Automated Test Suite (131 tests)
+pytest -v
+```
+
+### 5. Transparency & Development Data Notice
+> [!WARNING]
+> **DEVELOPMENT DATA DISCLAIMER:** Current duplicate detection results are based on synthetic development pairs (`SYNTHETIC / MANUALLY CREATED DEVELOPMENT DATA`). Supervised weights and thresholds are baseline prototypes and require domain-validated citizen complaint pair annotations prior to production deployment.
+
+---
+
 ## Repository Structure
 
 ```text
 Road-X/
 ├── ml/
 │   ├── common/                  # Shared base classes, config, logging & exceptions
-│   │   ├── __init__.py
-│   │   ├── base.py              # BaseModel lifecycle abstraction (train, predict, save, load)
-│   │   ├── config.py            # Dynamic path resolution and environment settings
-│   │   ├── exceptions.py        # Custom RoadX exception hierarchy
-│   │   └── logging_config.py    # Structured logging configuration
-│   │
 │   ├── failure_prediction/      # Failure prediction pipeline module
 │   ├── damage_detection/        # Adapter placeholder for existing CV detector
 │   ├── severity/                # Damage severity estimation
 │   ├── complaint_intelligence/  # NLP grievance classification & intelligence (Phase 5)
+│   ├── duplicate_detection/     # Duplicate complaint detection & ranking (Phase 6)
 │   │   ├── __init__.py
-│   │   ├── config.py            # Taxonomy, vectorizer, and model settings
-│   │   ├── schemas.py           # Pydantic request/response & enum schemas
-│   │   ├── preprocessing.py     # Text cleaning & NFKC normalization
-│   │   ├── features.py          # TF-IDF feature vectorizer
-│   │   ├── location_extractor.py# Location entity mention extractor
-│   │   ├── classifiers.py       # Issue, Urgency, and SafetyRisk classifiers
-│   │   ├── embedder.py          # Semantic vector embedder interface (for Phase 6)
-│   │   ├── analyzer.py          # ComplaintAnalyzer orchestrator
-│   │   ├── train.py             # Pipeline training & artifact serialization
-│   │   ├── evaluate.py          # Precision/Recall/F1 evaluation helper
-│   │   └── tests/               # Unit test suite for Phase 5
+│   │   ├── config.py            # Scoring weights, decay scales, and thresholds
+│   │   ├── schemas.py           # Pydantic complaint record & candidate response schemas
+│   │   ├── candidate_retriever.py# Modular candidate retriever abstraction
+│   │   ├── similarity.py        # Text similarity using Phase 5 embeddings
+│   │   ├── features.py          # Haversine distance (m) & temporal difference (h)
+│   │   ├── scorer.py            # Composite duplicate scorer (heuristic & supervised)
+│   │   ├── detector.py          # DuplicateDetector pipeline orchestrator
+│   │   ├── train.py             # Model training & artifact serialization
+│   │   ├── evaluate.py          # Precision/Recall/PR-AUC evaluation helper
+│   │   └── tests/               # 20 unit tests covering all edge cases
 │   │
-│   ├── duplicate_detection/     # Spatiotemporal duplicate clustering
+│   ├── time_to_failure/         # Degradation timeline forecasting
+│   └── priority_engine/         # Multi-criteria maintenance prioritization
 │   ├── time_to_failure/         # Degradation timeline forecasting
 │   └── priority_engine/         # Multi-criteria maintenance prioritization
 │

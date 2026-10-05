@@ -68,6 +68,7 @@ data/raw/*
 !data/raw/synthetic_road_failure_data.csv
 !data/raw/synthetic_damage_severity_data.csv
 !data/raw/synthetic_citizen_complaints.csv
+!data/raw/synthetic_duplicate_complaints.csv
 data/processed/*
 !data/processed/.gitkeep
 data/external/*
@@ -81,3 +82,5 @@ models/*
 !models/severity/**
 !models/complaint_intelligence/
 !models/complaint_intelligence/**
+!models/duplicate_detection/
+!models/duplicate_detection/**
