@@ -1,46 +1,82 @@
-"""Feature engineering transformers for road failure risk estimation."""
+"""Feature engineering builder for Road Failure Prediction."""
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
+
+import numpy as np
+import pandas as pd
+
 from ml.common.logging_config import get_logger
+from ml.failure_prediction.config import failure_config
 
 logger = get_logger("failure_prediction.features")
 
 
-class FailureFeatureExtractor:
-    """Extracts analytical features capturing road distress, environmental pressure, and vulnerability."""
+class RoadFailureFeatureBuilder:
+    """Builds derived civil engineering features capturing pavement stress, degradation, and environmental load."""
 
-    def __init__(self) -> None:
-        self.feature_names = [
-            "severity_index",
-            "water_damage_risk",
-            "traffic_stress_factor",
-        ]
+    def __init__(self, include_raw: bool = True) -> None:
+        self.include_raw = include_raw
+        self.engineered_features = failure_config.engineered_feature_columns
+        self.feature_names_: List[str] = []
 
-    def extract_features(self, record_dict: Dict[str, Any]) -> Dict[str, float]:
-        """Compute distress indices from raw grievance attributes.
+    def build_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Derive analytical road degradation features from preprocessed base features.
 
         Args:
-            record_dict: Cleaned dictionary representation of road grievance.
+            df: Preprocessed DataFrame containing clean base features.
 
         Returns:
-            Dictionary of computed analytical features.
+            DataFrame containing engineered features (and raw features if include_raw=True).
         """
-        depth = float(record_dict.get("estimated_depth_cm") or 0.0)
-        area = float(record_dict.get("estimated_area_sqm") or 0.0)
-        rainfall = float(record_dict.get("rainfall_recent_mm") or 0.0)
-        traffic = str(record_dict.get("traffic_volume_estimate", "medium")).lower()
+        features_df = pd.DataFrame(index=df.index)
 
-        traffic_multiplier = {"low": 1.0, "medium": 1.5, "high": 2.0}.get(traffic, 1.2)
+        # 1. Traffic Stress: Heavy vehicle volume represents exponential equivalent single axle load (ESAL)
+        features_df["traffic_stress"] = df["traffic_volume"] * df["heavy_vehicle_ratio"]
 
-        # Baseline heuristic features serving as inputs for the upcoming ML model
-        severity_index = (depth * 0.6) + (area * 0.4)
-        water_damage_risk = rainfall * (1.5 if depth > 5.0 else 1.0)
-        traffic_stress_factor = severity_index * traffic_multiplier
+        # 2. Repair Aging: Days since repair normalized by historical maintenance cadence
+        features_df["repair_aging"] = df["days_since_repair"] / (365.25 * (df["previous_repairs"] + 1.0))
 
-        return {
-            "severity_index": round(severity_index, 4),
-            "water_damage_risk": round(water_damage_risk, 4),
-            "traffic_stress_factor": round(traffic_stress_factor, 4),
-        }
+        # 3. Damage Indicator: Weighted composite index combining pothole severity and surface crack proportion
+        features_df["damage_indicator"] = (df["pothole_count"] * 0.70) + (df["crack_ratio"] * 100.0 * 0.30)
+
+        # 4. Weather Stress: Acute 7d deluge coupled with chronic 30d sub-grade waterlogging and flood surcharge
+        features_df["weather_stress"] = (
+            df["rainfall_30d_mm"] * (1.0 + (df["flood_events_30d"] * 0.50))
+            + (df["rainfall_7d_mm"] * 1.50)
+        )
+
+        # 5. Structural Vulnerability: Pavement age multiplied by loss of structural quality
+        features_df["structural_vulnerability"] = df["road_age_years"] * (1.0 - df["road_quality_score"])
+
+        # 6. Complaint Pressure: Grievance density normalized by vehicular traffic exposure
+        features_df["complaint_pressure"] = df["citizen_complaints_30d"] / ((df["traffic_volume"] / 1000.0) + 1.0)
+
+        if self.include_raw:
+            final_df = pd.concat([df[failure_config.raw_feature_columns], features_df], axis=1)
+        else:
+            final_df = features_df
+
+        self.feature_names_ = list(final_df.columns)
+        return final_df
+
+    def extract_features(self, record_or_df: Union[Dict[str, Any], pd.DataFrame]) -> Union[Dict[str, float], pd.DataFrame]:
+        """Extract features from either a dictionary or a DataFrame."""
+        if isinstance(record_or_df, dict):
+            df_temp = pd.DataFrame([record_or_df])
+            # Fill missing keys if needed
+            for col in failure_config.raw_feature_columns:
+                if col not in df_temp.columns:
+                    df_temp[col] = 0.0
+            feat_df = self.build_features(df_temp)
+            return {col: float(feat_df.iloc[0][col]) for col in self.engineered_features}
+        return self.build_features(record_or_df)
+
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Transform input DataFrame into final feature matrix."""
+        return self.build_features(df)
+
+
+# Backward compatibility alias
+FailureFeatureExtractor = RoadFailureFeatureBuilder

@@ -56,14 +56,16 @@ htmlcov/
 .tox/
 .nox/
 
-# Logs
+# Logs & Reports
 logs/
 *.log
+reports/
 
 # Large Datasets & Model Artifacts
-# Note: Keep directory structure intact via .gitkeep
+# Keep directory structure intact via .gitkeep
 data/raw/*
 !data/raw/.gitkeep
+!data/raw/synthetic_road_failure_data.csv
 data/processed/*
 !data/processed/.gitkeep
 data/external/*
@@ -71,3 +73,5 @@ data/external/*
 
 models/*
 !models/.gitkeep
+!models/failure_prediction/
+!models/failure_prediction/**

@@ -1,0 +1,139 @@
+{
+  "model_name": "road_failure_xgboost",
+  "version": "v1",
+  "target": "failure_next_30d",
+  "training_dataset": "D:\\Third year Projects\\Road-X\\data\\raw\\synthetic_road_failure_data.csv",
+  "dataset_type": "SYNTHETIC \u2014 FOR DEVELOPMENT ONLY",
+  "features": [
+    "road_age_years",
+    "road_length_m",
+    "lane_count",
+    "road_quality_score",
+    "traffic_volume",
+    "heavy_vehicle_ratio",
+    "average_speed_kmph",
+    "rainfall_7d_mm",
+    "rainfall_30d_mm",
+    "temperature_avg_c",
+    "flood_events_30d",
+    "days_since_repair",
+    "previous_repairs",
+    "previous_failures",
+    "citizen_complaints_30d",
+    "pothole_count",
+    "crack_ratio",
+    "traffic_stress",
+    "repair_aging",
+    "damage_indicator",
+    "weather_stress",
+    "structural_vulnerability",
+    "complaint_pressure"
+  ],
+  "feature_count": 23,
+  "training_timestamp": "2026-10-05T06:31:50.863087+00:00",
+  "temporal_split": {
+    "train_samples": 4800,
+    "test_samples": 1200,
+    "split_ratio": 0.8,
+    "train_date_range": [
+      "2025-01-01",
+      "2025-10-17"
+    ],
+    "test_date_range": [
+      "2025-10-17",
+      "2025-12-17"
+    ]
+  },
+  "risk_thresholds": {
+    "low_max": 0.3,
+    "medium_max": 0.6,
+    "high_max": 0.8
+  },
+  "metrics": {
+    "model_name": "XGBoost (Calibrated)",
+    "precision": 0.7948,
+    "recall": 0.7539,
+    "f1_score": 0.7738,
+    "roc_auc": 0.9069,
+    "pr_auc": 0.8632,
+    "brier_score": 0.1185,
+    "confusion_matrix": {
+      "true_negatives": 666,
+      "false_positives": 87,
+      "false_negatives": 110,
+      "true_positives": 337
+    }
+  },
+  "all_model_comparisons": [
+    {
+      "model_name": "Logistic Regression",
+      "precision": 0.7536,
+      "recall": 0.8277,
+      "f1_score": 0.7889,
+      "roc_auc": 0.913,
+      "pr_auc": 0.8648,
+      "brier_score": 0.1169,
+      "confusion_matrix": {
+        "true_negatives": 632,
+        "false_positives": 121,
+        "false_negatives": 77,
+        "true_positives": 370
+      }
+    },
+    {
+      "model_name": "Random Forest",
+      "precision": 0.7455,
+      "recall": 0.8255,
+      "f1_score": 0.7834,
+      "roc_auc": 0.9083,
+      "pr_auc": 0.8558,
+      "brier_score": 0.1184,
+      "confusion_matrix": {
+        "true_negatives": 627,
+        "false_positives": 126,
+        "false_negatives": 78,
+        "true_positives": 369
+      }
+    },
+    {
+      "model_name": "XGBoost (Calibrated)",
+      "precision": 0.7948,
+      "recall": 0.7539,
+      "f1_score": 0.7738,
+      "roc_auc": 0.9069,
+      "pr_auc": 0.8632,
+      "brier_score": 0.1185,
+      "confusion_matrix": {
+        "true_negatives": 666,
+        "false_positives": 87,
+        "false_negatives": 110,
+        "true_positives": 337
+      }
+    }
+  ],
+  "feature_importances": {
+    "structural_vulnerability": 0.3301,
+    "road_quality_score": 0.1123,
+    "road_age_years": 0.0498,
+    "crack_ratio": 0.0478,
+    "damage_indicator": 0.046,
+    "days_since_repair": 0.0372,
+    "weather_stress": 0.0273,
+    "rainfall_30d_mm": 0.0272,
+    "citizen_complaints_30d": 0.0256,
+    "repair_aging": 0.0247,
+    "traffic_stress": 0.0244,
+    "flood_events_30d": 0.024,
+    "pothole_count": 0.0225,
+    "traffic_volume": 0.022,
+    "rainfall_7d_mm": 0.0219,
+    "heavy_vehicle_ratio": 0.0211,
+    "average_speed_kmph": 0.0205,
+    "previous_failures": 0.0203,
+    "temperature_avg_c": 0.02,
+    "complaint_pressure": 0.0199,
+    "road_length_m": 0.0198,
+    "lane_count": 0.0189,
+    "previous_repairs": 0.0171
+  }
+}

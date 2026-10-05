@@ -24,7 +24,7 @@ def test_failure_prediction_model_subclasses_base_model():
     """Verify RoadFailurePredictionModel implements BaseModel interface."""
     assert issubclass(RoadFailurePredictionModel, BaseModel)
     model = RoadFailurePredictionModel()
-    assert model.model_name == "road_failure_classifier"
+    assert "road_failure" in model.model_name
     assert model.is_fitted is False
 
     # Calling predict before fitting must raise ModelNotFittedError

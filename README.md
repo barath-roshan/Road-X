@@ -41,6 +41,74 @@ The RoadX machine learning subsystem is designed with strict modularity and sepa
 
 ---
 
+## Road Failure Prediction (Phase 2)
+
+### 1. Problem Formulation
+Given the current structural and environmental condition of a road segment at observation time $t$, predict the probability that the segment will experience critical structural deterioration or failure within a 30-day forward horizon:
+$$\hat{y} = P(\text{failure in } (t, t + 30\text{ days}] \mid \mathcal{F}_t)$$
+This enables municipal engineers to schedule preventative maintenance before high-speed hazards, acute potholing, or pavement collapse endanger citizens.
+
+### 2. Input Features
+The pipeline processes 17 base road segment attributes and derives 6 civil engineering indicators:
+
+* **Raw Road & Traffic Attributes**: `road_age_years`, `road_length_m`, `lane_count`, `road_quality_score` (0.0=poor, 1.0=pristine), `traffic_volume`, `heavy_vehicle_ratio`, `average_speed_kmph`, `rainfall_7d_mm`, `rainfall_30d_mm`, `temperature_avg_c`, `flood_events_30d`, `days_since_repair`, `previous_repairs`, `previous_failures`, `citizen_complaints_30d`, `pothole_count`, `crack_ratio`.
+* **Engineered Civil Engineering Features**:
+  * `traffic_stress = traffic_volume * heavy_vehicle_ratio` (Represents heavy axle repetitions causing pavement sub-grade fatigue).
+  * `repair_aging = days_since_repair / (365.25 * (previous_repairs + 1))` (Normalized time elapsed since latest repair cadence).
+  * `damage_indicator = (pothole_count * 0.70) + (crack_ratio * 100.0 * 0.30)` (Composite surface distress metric).
+  * `weather_stress = rainfall_30d_mm * (1.0 + flood_events_30d * 0.50) + rainfall_7d_mm * 1.50` (Pavement saturation and dynamic water pounding).
+  * `structural_vulnerability = road_age_years * (1.0 - road_quality_score)` (Compound age and surface degradation wear).
+  * `complaint_pressure = citizen_complaints_30d / ((traffic_volume / 1000.0) + 1.0)` (Citizen grievance density per traffic exposure).
+
+### 3. Prediction Target (`failure_next_30d`)
+A binary indicator ($y \in \{0, 1\}$) signifying whether the road segment required emergency intervention or experienced critical failure in the 30 days strictly following the observation date.
+
+### 4. Validation & Temporal Leakage Prevention
+* **Temporal Split**: Records are ordered chronologically. Observations up to October 17, 2025 form the training partition (80%), while observations from October 17 to December 17, 2025 form the unseen forward test partition (20%).
+* **Leakage Safeguards**: No future complaints, subsequent repairs, post-observation weather events, or future damages are accessible to the model at observation time $t$. Preprocessing medians are fitted exclusively on the training split.
+
+### 5. Progressive Models & Benchmark Results (Temporal Test Set)
+
+| Model | Precision | Recall | F1-Score | ROC-AUC | PR-AUC | Brier Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Logistic Regression (Baseline)** | 0.7536 | **0.8277** | **0.7889** | **0.9130** | **0.8648** | **0.1169** |
+| **Random Forest (Tree Baseline)** | 0.7455 | 0.8255 | 0.7834 | 0.9083 | 0.8558 | 0.1184 |
+| **XGBoost (Calibrated, Primary)** | **0.7948** | 0.7539 | 0.7738 | 0.9069 | 0.8632 | 0.1185 |
+
+*Selected Model:* Calibrated **XGBoost** provides the highest precision (0.7948) with strong PR-AUC (0.8632) and well-calibrated probabilities for administrative risk triage.
+
+### 6. Probability Calibration & Risk Tiers
+Predicted failure probabilities are mapped into configurable municipal action tiers:
+* **LOW**: $p < 0.30$ (Routine monitoring)
+* **MEDIUM**: $0.30 \le p < 0.60$ (Scheduled inspection)
+* **HIGH**: $0.60 \le p < 0.80$ (Priority work order consideration)
+* **CRITICAL**: $p \ge 0.80$ (Immediate engineering inspection and repair dispatch)
+
+### 7. Reproducible CLI Commands
+
+```bash
+# 1. Dataset Generation (Synthetic development dataset)
+python -m ml.failure_prediction.generate_synthetic_data
+
+# 2. Exploratory Data Analysis & Diagnostic Plots
+python -m ml.failure_prediction.eda
+
+# 3. Model Training, Calibration & Artifact Serialization
+python -m ml.failure_prediction.train
+
+# 4. Inference on Single Road Segment
+python -c "from ml.failure_prediction import RoadFailurePredictor; p = RoadFailurePredictor(); print(p.predict({'road_age_years': 9.2, 'road_length_m': 250, 'lane_count': 2, 'road_quality_score': 0.45, 'traffic_volume': 28000, 'heavy_vehicle_ratio': 0.32, 'average_speed_kmph': 42, 'rainfall_7d_mm': 120, 'rainfall_30d_mm': 380, 'temperature_avg_c': 32, 'flood_events_30d': 2, 'days_since_repair': 850, 'previous_repairs': 3, 'previous_failures': 2, 'citizen_complaints_30d': 8, 'pothole_count': 7, 'crack_ratio': 0.14}))"
+
+# 5. Run Complete Automated Test Suite (53 tests)
+pytest -v
+```
+
+### 8. Limitations & Transparency Notice
+> [!WARNING]
+> **SYNTHETIC — FOR DEVELOPMENT ONLY:** The current model is a development prototype trained on synthetic data representing structural civil engineering relationships. Its metrics must not be interpreted as real-world road-failure performance. Real municipal telemetry and sensor data will be ingested in production deployments.
+
+---
+
 ## Repository Structure
 
 ```text
