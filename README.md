@@ -355,6 +355,71 @@ pytest -v
 
 ---
 
+## Time-to-Failure Prediction (Phase 7)
+
+### 1. Problem Formulation
+While Phase 2 answers *"Will this road segment significantly deteriorate/fail within the next 30 days?"* (binary classification), **Phase 7** estimates:
+> *"Approximately how much operational time (in days) remains before the road segment reaches a defined structural failure condition?"*
+
+This continuous survival prognosis complements binary failure prediction to optimize long-term municipal maintenance scheduling.
+
+### 2. Output Schema
+```json
+{
+  "segment_id": "SEG-0042",
+  "observation_date": "2026-09-01",
+  "estimated_time_to_failure_days": 87.4,
+  "estimated_failure_date": "2026-11-27",
+  "confidence_interval_days": {
+    "lower_bound": 71.7,
+    "upper_bound": 106.6
+  },
+  "survival_probabilities": {
+    "day_30": 0.8845,
+    "day_90": 0.4512,
+    "day_180": 0.1235,
+    "day_365": 0.0123
+  },
+  "risk_level": "HIGH",
+  "model_version": "v1",
+  "top_contributing_risk_factors": [
+    "damage_indicator",
+    "structural_vulnerability",
+    "traffic_stress"
+  ]
+}
+```
+
+### 3. Survival Analysis & Model Architecture
+* **Event Definition**: Pavement failure threshold (`road_quality_score <= 0.35` OR `pothole_count >= 10` OR `crack_ratio >= 0.25`).
+* **Censoring Handling**: Right-censoring is explicitly modeled ($\delta_i = 1$ for observed failures, $\delta_i = 0$ for operational segments censored at study end date).
+* **Empirical Baseline**: Non-parametric `KaplanMeierEstimator` empirical survival curve fitting.
+* **Parametric Survival Regression**: `WeibullSurvivalModel` fitting Weibull Accelerated Failure Time (AFT) log-likelihood over censored and uncensored observations:
+  $$S(t \mid \mathbf{X}) = \exp\left(-\left(\frac{t}{\lambda(\mathbf{X})}\right)^\gamma\right)$$
+* **Temporal Leakage Safeguard**: Features are constructed strictly at observation time $T$. No future repairs, post-observation weather, or future complaints are incorporated.
+
+### 4. Reproducible CLI Commands
+
+```bash
+# 1. Dataset Generation (Synthetic longitudinal survival telemetry)
+python -m ml.time_to_failure.generate_synthetic_data
+
+# 2. Model Training & Survival Evaluation
+python -m ml.time_to_failure.train
+
+# 3. Pipeline Inference Example
+python -c "from ml.time_to_failure import TimeToFailurePredictor; from ml.failure_prediction.schemas import RoadFailureInput; pred = TimeToFailurePredictor.load(); print(pred.predict(RoadFailureInput(segment_id='SEG-101', observation_date='2026-09-01', road_age_years=8.5, road_length_m=500.0, lane_count=2, road_quality_score=0.45, traffic_volume=22000.0, heavy_vehicle_ratio=0.30, average_speed_kmph=40.0, rainfall_7d_mm=80.0, rainfall_30d_mm=250.0, temperature_avg_c=32.0, flood_events_30d=1, days_since_repair=700.0, previous_repairs=2, previous_failures=1, citizen_complaints_30d=6, pothole_count=5, crack_ratio=0.12)).model_dump_json(indent=2))"
+
+# 4. Run Complete Automated Test Suite (142 tests)
+pytest -v
+```
+
+### 5. Transparency & Development Data Notice
+> [!WARNING]
+> **DEVELOPMENT DATA DISCLAIMER:** Current time-to-failure predictions are trained on synthetic longitudinal survival data (`SYNTHETIC DEVELOPMENT DATA`). Real-world deployment requires collecting longitudinal pavement deterioration telemetry across municipal road networks.
+
+---
+
 ## Repository Structure
 
 ```text
@@ -366,21 +431,19 @@ Road-X/
 │   ├── severity/                # Damage severity estimation
 │   ├── complaint_intelligence/  # NLP grievance classification & intelligence (Phase 5)
 │   ├── duplicate_detection/     # Duplicate complaint detection & ranking (Phase 6)
+│   ├── time_to_failure/         # Survival analysis & time-to-failure prediction (Phase 7)
 │   │   ├── __init__.py
-│   │   ├── config.py            # Scoring weights, decay scales, and thresholds
-│   │   ├── schemas.py           # Pydantic complaint record & candidate response schemas
-│   │   ├── candidate_retriever.py# Modular candidate retriever abstraction
-│   │   ├── similarity.py        # Text similarity using Phase 5 embeddings
-│   │   ├── features.py          # Haversine distance (m) & temporal difference (h)
-│   │   ├── scorer.py            # Composite duplicate scorer (heuristic & supervised)
-│   │   ├── detector.py          # DuplicateDetector pipeline orchestrator
+│   │   ├── config.py            # Feature names, evaluation horizons, and risk bounds
+│   │   ├── schemas.py           # Pydantic input/output & survival probability schemas
+│   │   ├── preprocessing.py     # Median imputation & StandardScaler pipeline
+│   │   ├── features.py          # Civil engineering distress feature builder
+│   │   ├── survival_model.py    # Kaplan-Meier estimator & Weibull AFT survival model
+│   │   ├── predictor.py         # TimeToFailurePredictor pipeline orchestrator
 │   │   ├── train.py             # Model training & artifact serialization
-│   │   ├── evaluate.py          # Precision/Recall/PR-AUC evaluation helper
-│   │   └── tests/               # 20 unit tests covering all edge cases
+│   │   ├── evaluate.py          # Harrell's C-Index, MAE, and RMSE evaluation helper
+│   │   ├── generate_synthetic_data.py # Synthetic survival telemetry generator
+│   │   └── tests/               # 11 unit tests covering survival prediction
 │   │
-│   ├── time_to_failure/         # Degradation timeline forecasting
-│   └── priority_engine/         # Multi-criteria maintenance prioritization
-│   ├── time_to_failure/         # Degradation timeline forecasting
 │   └── priority_engine/         # Multi-criteria maintenance prioritization
 │
 ├── data/                        # Data directories (tracked via .gitkeep)

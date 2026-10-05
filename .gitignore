@@ -69,6 +69,7 @@ data/raw/*
 !data/raw/synthetic_damage_severity_data.csv
 !data/raw/synthetic_citizen_complaints.csv
 !data/raw/synthetic_duplicate_complaints.csv
+!data/raw/synthetic_time_to_failure_data.csv
 data/processed/*
 !data/processed/.gitkeep
 data/external/*
@@ -84,3 +85,5 @@ models/*
 !models/complaint_intelligence/**
 !models/duplicate_detection/
 !models/duplicate_detection/**
+!models/time_to_failure/
+!models/time_to_failure/**
