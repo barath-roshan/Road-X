@@ -66,6 +66,7 @@ reports/
 data/raw/*
 !data/raw/.gitkeep
 !data/raw/synthetic_road_failure_data.csv
+!data/raw/synthetic_damage_severity_data.csv
 data/processed/*
 !data/processed/.gitkeep
 data/external/*
@@ -75,3 +76,5 @@ models/*
 !models/.gitkeep
 !models/failure_prediction/
 !models/failure_prediction/**
+!models/severity/
+!models/severity/**

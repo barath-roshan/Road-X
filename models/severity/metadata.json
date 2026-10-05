@@ -1,0 +1,230 @@
+{
+  "model_name": "road_damage_severity_xgboost",
+  "version": "v1",
+  "problem_type": "regression",
+  "target": "severity_score",
+  "training_dataset": "D:\\Third year Projects\\Road-X\\data\\raw\\synthetic_damage_severity_data.csv",
+  "dataset_type": "SYNTHETIC \u2014 FOR DEVELOPMENT ONLY",
+  "features": [
+    "detection_count",
+    "total_area_ratio",
+    "max_area_ratio",
+    "avg_area_ratio",
+    "max_confidence",
+    "avg_confidence",
+    "total_bbox_area",
+    "max_bbox_area",
+    "road_quality_score",
+    "traffic_volume",
+    "heavy_vehicle_ratio",
+    "road_age_years",
+    "citizen_complaints_30d",
+    "traffic_damage_interaction",
+    "quality_defect_ratio",
+    "complaint_defect_interaction"
+  ],
+  "feature_count": 16,
+  "training_timestamp": "2026-10-05T15:08:20.988010+00:00",
+  "data_split": {
+    "train_samples": 2400,
+    "test_samples": 600,
+    "test_ratio": 0.2
+  },
+  "level_thresholds": {
+    "low_max": 30.0,
+    "medium_max": 60.0,
+    "high_max": 80.0
+  },
+  "metrics": {
+    "model_name": "XGBoost Regressor",
+    "mae": 2.9796,
+    "rmse": 3.8558,
+    "r2_score": 0.9624,
+    "level_macro_precision": 0.8672,
+    "level_macro_recall": 0.8545,
+    "level_macro_f1": 0.8577,
+    "level_confusion_matrix": {
+      "labels": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "matrix": [
+        [
+          383,
+          19,
+          0,
+          0
+        ],
+        [
+          19,
+          139,
+          4,
+          0
+        ],
+        [
+          0,
+          2,
+          22,
+          1
+        ],
+        [
+          0,
+          0,
+          3,
+          8
+        ]
+      ]
+    }
+  },
+  "all_model_comparisons": [
+    {
+      "model_name": "Ridge Regression",
+      "mae": 2.9183,
+      "rmse": 3.7347,
+      "r2_score": 0.9647,
+      "level_macro_precision": 0.889,
+      "level_macro_recall": 0.866,
+      "level_macro_f1": 0.8765,
+      "level_confusion_matrix": {
+        "labels": [
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "CRITICAL"
+        ],
+        "matrix": [
+          [
+            391,
+            11,
+            0,
+            0
+          ],
+          [
+            24,
+            135,
+            3,
+            0
+          ],
+          [
+            0,
+            3,
+            21,
+            1
+          ],
+          [
+            0,
+            0,
+            2,
+            9
+          ]
+        ]
+      }
+    },
+    {
+      "model_name": "Random Forest Regressor",
+      "mae": 3.4494,
+      "rmse": 4.4585,
+      "r2_score": 0.9497,
+      "level_macro_precision": 0.8397,
+      "level_macro_recall": 0.7944,
+      "level_macro_f1": 0.8116,
+      "level_confusion_matrix": {
+        "labels": [
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "CRITICAL"
+        ],
+        "matrix": [
+          [
+            386,
+            16,
+            0,
+            0
+          ],
+          [
+            24,
+            133,
+            5,
+            0
+          ],
+          [
+            0,
+            5,
+            19,
+            1
+          ],
+          [
+            0,
+            0,
+            4,
+            7
+          ]
+        ]
+      }
+    },
+    {
+      "model_name": "XGBoost Regressor",
+      "mae": 2.9796,
+      "rmse": 3.8558,
+      "r2_score": 0.9624,
+      "level_macro_precision": 0.8672,
+      "level_macro_recall": 0.8545,
+      "level_macro_f1": 0.8577,
+      "level_confusion_matrix": {
+        "labels": [
+          "LOW",
+          "MEDIUM",
+          "HIGH",
+          "CRITICAL"
+        ],
+        "matrix": [
+          [
+            383,
+            19,
+            0,
+            0
+          ],
+          [
+            19,
+            139,
+            4,
+            0
+          ],
+          [
+            0,
+            2,
+            22,
+            1
+          ],
+          [
+            0,
+            0,
+            3,
+            8
+          ]
+        ]
+      }
+    }
+  ],
+  "feature_importances": {
+    "quality_defect_ratio": 0.4608,
+    "complaint_defect_interaction": 0.2154,
+    "total_area_ratio": 0.0973,
+    "road_age_years": 0.0756,
+    "road_quality_score": 0.0546,
+    "detection_count": 0.0372,
+    "total_bbox_area": 0.0207,
+    "avg_area_ratio": 0.0117,
+    "citizen_complaints_30d": 0.0075,
+    "max_bbox_area": 0.0041,
+    "traffic_damage_interaction": 0.0035,
+    "max_confidence": 0.0033,
+    "max_area_ratio": 0.003,
+    "avg_confidence": 0.002,
+    "heavy_vehicle_ratio": 0.0018,
+    "traffic_volume": 0.0016
+  }
+}

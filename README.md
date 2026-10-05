@@ -175,6 +175,56 @@ for item in response.detections:
 
 ---
 
+## Damage Severity Estimation (Phase 4)
+
+### 1. What This Module Does
+Estimates the physical severity of detected road defects ($0.0 - 100.0$ continuous severity score and categorical level: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`) using normalized vision detection outputs from Phase 3 and optional road infrastructure context.
+
+### 2. Inputs & Feature Extraction
+* **Phase 3 Vision Inputs**: `RoadDamageDetectionResponse` containing `detection_count`, `total_area_ratio`, `max_area_ratio`, `avg_area_ratio`, `max_confidence`, `avg_confidence`, `total_bbox_area`, `max_bbox_area`.
+* **Road Infrastructure Context** (Optional): `RoadContextInput` containing `road_quality_score`, `traffic_volume`, `heavy_vehicle_ratio`, `road_age_years`, `citizen_complaints_30d`.
+* **Engineered Feature Interactions**: `traffic_damage_interaction`, `quality_defect_ratio`, `complaint_defect_interaction`.
+
+### 3. Model Architecture & Benchmark Evaluation
+Evaluated via an 80/20 train/test split over 3,000 synthetic observations:
+
+| Model | MAE | RMSE | $R^2$ Score | Level Precision | Level Recall | Level F1-Score |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Ridge Regression (Baseline)** | **2.9183** | **3.7347** | **0.9647** | **0.8890** | **0.8660** | **0.8765** |
+| **Random Forest Regressor** | 3.4494 | 4.4585 | 0.9497 | 0.8397 | 0.7944 | 0.8116 |
+| **XGBoost Regressor (Primary)** | 2.9796 | 3.8558 | 0.9624 | 0.8672 | 0.8545 | 0.8577 |
+
+*Selected Model:* **Ridge Regression / XGBoost Regressor** ($R^2 = 0.9647$, MAE = 2.9183) providing high accuracy and clear linear interpretability.
+
+### 4. Presentation Categories & Configurable Thresholds
+Continuous severity scores ($0.0 - 100.0$) are mapped into configurable presentation levels:
+* **LOW**: $0.0 \le \text{score} < 30.0$
+* **MEDIUM**: $30.0 \le \text{score} < 60.0$
+* **HIGH**: $60.0 \le \text{score} < 80.0$
+* **CRITICAL**: $\text{score} \ge 80.0$
+
+### 5. Reproducible CLI Commands
+
+```bash
+# 1. Dataset Generation (Synthetic damage severity dataset)
+python -m ml.severity.generate_synthetic_data
+
+# 2. Model Training, Calibration & Artifact Serialization
+python -m ml.severity.train
+
+# 3. End-to-End Detector -> Severity Inference Test
+python -c "from ml.damage_detection import ExistingPotholeModelAdapter; from ml.severity import DamageSeverityPredictor, RoadContextInput; det = ExistingPotholeModelAdapter(); res = det.detect('data/raw/sample_road_test.jpg'); sev = DamageSeverityPredictor(); out = sev.predict(res, RoadContextInput(road_quality_score=0.45, traffic_volume=25000, heavy_vehicle_ratio=0.30, road_age_years=9.0, citizen_complaints_30d=7)); print(out.model_dump_json(indent=2))"
+
+# 4. Run Complete Automated Test Suite (92 tests)
+pytest -v
+```
+
+### 6. Limitations & Transparency Notice
+> [!WARNING]
+> **SYNTHETIC — DEVELOPMENT ONLY:** The current severity model is a development prototype trained on synthetic data simulating physical pavement degradation formulas. Real-world deployment requires a properly annotated, domain-validated road-damage severity dataset.
+
+---
+
 ## Repository Structure
 
 ```text
