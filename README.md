@@ -760,8 +760,84 @@ Execute the complete test suite across all Phase 1–11 components:
 # Run backend specific unit & integration tests
 pytest backend/tests
 
-# Run complete workspace test suite (197 tests)
+# Run complete workspace test suite (211 tests)
+pytest
+```
+
+---
+
+## Phase 12 — Government Officer Workflow
+
+### 1. Architectural Overview & Conceptual Workflow
+
+Phase 12 establishes the administrative **Government Officer workflow** for reviewing citizen road grievances, converting accepted grievances into maintenance work orders, assigning contractors, and enforcing strict government verification before a grievance can be resolved.
+
+```text
+Citizen submits grievance
+        │
+        ▼
+    SUBMITTED
+        │
+Government Officer reviews
+        │
+  UNDER_REVIEW
+   /        \
+Reject    Accept
+  /            \
+REJECTED      Create work order
+                    │
+                ASSIGNED / OPEN
+                    │
+            Contractor repair work (Phase 13)
+                    │
+           PENDING_VERIFICATION
+             /              \
+     Government Verifies
+         /              \
+      APPROVE         REJECT
+        │                │
+    RESOLVED        IN_PROGRESS
+```
+
+### 2. Strict Business Rules & Controls
+
+1. **Strict Resolution Rule:** A grievance **NEVER** transitions to `RESOLVED` merely because a contractor completed work. A contractor completion submission transitions the status to `PENDING_VERIFICATION`. Only a Government Officer `APPROVE` verification decision transitions a grievance to `RESOLVED`.
+2. **Role Boundaries & Authorization:** Administrative operations (review, work order creation/assignment, completion verification) are restricted strictly to `GOVERNMENT_OFFICER` actors. Requests by `CITIZEN` or `CONTRACTOR` actors yield `403 Forbidden` (`UnauthorizedError`).
+3. **Explicit State Machine Transitions:** State transitions for `Grievance` and `WorkOrder` entities are strictly validated via `GrievanceStateMachine` and `WorkOrderStateMachine`. Arbitrary or invalid transitions (e.g. `SUBMITTED → RESOLVED`) trigger `InvalidStateTransitionError` (HTTP 400).
+4. **Atomic Transactions:** All combined workflow state mutations (e.g., Accepting grievance + creating work order + updating grievance status + writing audit history) execute inside single atomic database transactions.
+
+### 3. Database Entities & Schemas
+
+* **`GovernmentReview`** (`government_reviews` table): Persistent record of an officer's evaluation decision (`ACCEPT` or `REJECT`), rejection reasons, officer notes, and timestamps.
+* **`WorkOrder`** (`work_orders` table): Maintenance work order entity tracking title, description, priority (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`), contractor assignment, and status (`OPEN`, `ASSIGNED`, `IN_PROGRESS`, `PENDING_VERIFICATION`, `COMPLETED`, `CANCELLED`).
+* **`GovernmentVerification`** (`government_verifications` table): Record of final government completion audits (`APPROVE` or `REJECT`), officer notes, and timestamps.
+* **`WorkflowEvent`** (`workflow_events` table): Immutable chronological audit log recording actor ID, event type (`GRIEVANCE_SUBMITTED`, `GRIEVANCE_ACCEPTED`, `GRIEVANCE_REJECTED`, `WORK_ORDER_CREATED`, `WORK_ORDER_ASSIGNED`, `WORK_VERIFICATION_SUBMITTED`, `WORK_VERIFICATION_APPROVED`, `WORK_VERIFICATION_REJECTED`), old/new state, and notes.
+
+### 4. Government API Endpoints
+
+* `GET /api/v1/government/grievances`: List citizen grievances with status, issue category, road, and pagination filters.
+* `GET /api/v1/government/grievances/{id}`: Retrieve grievance details, evidence metadata, and stored ML decision support analysis.
+* `POST /api/v1/government/grievances/{id}/review`: Submit government review decision (`ACCEPT` or `REJECT`).
+* `POST /api/v1/government/grievances/{id}/work-orders`: Create a work order and assign a contractor for an accepted grievance.
+* `GET /api/v1/government/work-orders`: List maintenance work orders with optional status, priority, and contractor filters.
+* `GET /api/v1/government/work-orders/{id}`: Retrieve specific work order details.
+* `POST /api/v1/government/work-orders/{id}/verify`: Verify contractor completion (`APPROVE` → transitions grievance to `RESOLVED` and work order to `COMPLETED`; `REJECT` → reverts both to `IN_PROGRESS`).
+* `GET /api/v1/government/grievances/{id}/history`: Fetch complete chronological audit trail of workflow events for a grievance.
+
+### 5. Running Phase 12 Tests
+
+Execute the test suite (211 total passing tests across all modules):
+
+```bash
+# Run government workflow service & state machine tests
+pytest backend/tests/test_government_workflow.py backend/tests/test_state_machine.py backend/tests/test_authorization.py
+
+# Run government API integration tests
+pytest api/tests/test_government_api.py
+
+# Run full project test suite
 pytest
 ```
 
 #barath-roshan
+
