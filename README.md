@@ -608,26 +608,79 @@ Road-X/
 
 ---
 
-## Getting Started (Phase 1)
+## FastAPI ML Service (Phase 10)
 
-### 1. Installation
+### 1. Architecture
 
-```bash
-pip install -r requirements.txt
+Phase 10 exposes the RoadX Unified ML Pipeline through a production-grade **FastAPI ML Inference Service**. FastAPI functions strictly as the HTTP API and service boundary layer, delegating all domain logic to the unified pipeline.
+
+```text
+                 RoadX Application
+                        │
+                        │ HTTP
+                        ↓
+              ┌───────────────────┐
+              │   FastAPI Service │
+              │                   │
+              │ /health           │
+              │ /ready            │
+              │ /api/v1/ml/...    │
+              └─────────┬─────────┘
+                        ↓
+              MLInferenceService
+                        ↓
+              Unified ML Pipeline
+                        ↓
+       ┌────────────────┼────────────────┐
+       ↓                ↓                ↓
+ Failure Prediction  Damage Analysis  Complaint Analysis
+       ↓                ↓                ↓
+ Time-to-Failure     Severity         Duplicate Detection
+       │                │                │
+       └────────────────┼────────────────┘
+                        ↓
+             Maintenance Priority
+                        ↓
+                 API Response
 ```
 
-### 2. Environment Setup
+### 2. Service Endpoints
 
-Copy `.env.example` to `.env` if custom path or logging overrides are needed:
+* **`GET /health`**: Returns HTTP 200 OK with basic service health metadata (`status: healthy`, `service: roadx-ml-service`, `version: 1.0.0`).
+* **`GET /ready`**: Probes ML component load status. Returns HTTP 200 OK when the pipeline is initialized, or HTTP 503 Service Unavailable when model loading fails.
+* **`POST /api/v1/ml/analyze`**: Main unified ML pipeline inference endpoint. Accepts JSON requests matching `MLAnalyzeRequest` (road tabular data, citizen complaint text, image path, duplicate records) and returns `MLAnalyzeResponse`.
+* **`POST /api/v1/ml/damage/analyze`**: Visual damage detection endpoint (`multipart/form-data`). Accepts uploaded road surface images (JPEG, PNG, WebP up to 10MB) and optional road context JSON.
+
+### 3. Key Design Features
+
+* **Single Model Initialization**: ML predictors and YOLO/XGBoost model artifacts are loaded once during FastAPI application startup lifespan context and reused across requests.
+* **Structured Error Handling**: All HTTP exceptions, validation errors (HTTP 422), service unreadiness (HTTP 503), and runtime pipeline errors (HTTP 500) return a consistent `APIErrorResponse` schema without exposing internal tracebacks, machine paths, or secrets.
+* **Request ID Traceability**: Middleware generates or propagates an `X-Request-ID` header (e.g. `req-a1b2c3d4e5f6`) on every request, linking HTTP logs, execution timings, and error payloads.
+* **Clean Decoupling**: Routes do not execute model logic directly. Instead, they interact with `MLInferenceService` injected via FastAPI dependency injection (`get_ml_service`).
+
+### 4. Running the Service Locally
+
+Start the FastAPI ML server using Uvicorn:
 
 ```bash
-cp .env.example .env
+# Start development server with auto-reload
+uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-### 3. Run Tests
+Access Interactive API Documentation:
+* **Swagger UI Documentation**: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+* **ReDoc Documentation**: [http://127.0.0.1:8000/redoc](http://127.0.0.1:8000/redoc)
+* **OpenAPI Schema**: [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json)
 
-Execute the unit tests to verify package integrity and configurations:
+### 5. API Testing
+
+Run API-specific unit and integration tests:
 
 ```bash
+# Run API test suite
+pytest api/tests
+
+# Run complete workspace test suite (Phases 1-10)
 pytest
 ```
+
