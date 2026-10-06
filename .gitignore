@@ -62,6 +62,8 @@ logs/
 reports/
 
 # Large Datasets & Model Artifacts
+*.db
+*.sqlite
 # Keep directory structure intact via .gitkeep
 data/raw/*
 !data/raw/.gitkeep

@@ -680,7 +680,88 @@ Run API-specific unit and integration tests:
 # Run API test suite
 pytest api/tests
 
-# Run complete workspace test suite (Phases 1-10)
+# Run complete workspace test suite (Phases 1-11)
 pytest
 ```
+
+---
+
+## Backend & Database Subsystem (Phase 11)
+
+### 1. Layered Architecture
+
+Phase 11 introduces a clean, multi-tier backend persistence layer supporting PostgreSQL (production) and SQLite (local development/testing).
+
+```text
+FastAPI Routes (api/routes/grievance.py)
+       │
+       ▼
+Services (backend/services/)
+       │
+       ▼
+Repositories (backend/repositories/)
+       │
+       ▼
+SQLAlchemy 2.x Models (backend/models/)
+       │
+       ▼
+Alembic Migrations / Database (PostgreSQL / SQLite)
+```
+
+```text
+ML Pipeline (ml/pipeline/)
+     │
+     ▼
+Unified ML Result (UnifiedPipelineResult)
+     │
+     ▼
+MLAnalysisService (backend/services/ml_analysis_service.py)
+     │
+     ▼
+Database (ml_analysis_results table)
+```
+
+### 2. Database Entities & Relationships
+
+* **`User`** (`users` table): Platform actors supporting roles `CITIZEN`, `GOVERNMENT_OFFICER`, `CONTRACTOR`.
+* **`RoadSegment`** (`road_segments` table): Physical municipal road segments identified by `segment_id` (e.g. `SEG-MH-4001`) used by ML failure prediction models.
+* **`Grievance`** (`grievances` table): Central grievance/report entity tracking lifecycle status (`SUBMITTED`, `UNDER_REVIEW`, `IN_PROGRESS`, `PENDING_VERIFICATION`, `RESOLVED`, `REJECTED`).
+* **`Evidence`** (`evidences` table): Visual grievance evidence file metadata (`file_name`, `file_type`, `storage_path`, `file_size_bytes`).
+* **`MLAnalysisResult`** (`ml_analysis_results` table): Persistent store for Phase 9/10 Unified ML Pipeline prediction outputs (JSONB/JSON structures for failure prediction, damage detection, severity, complaint intelligence, duplicate detection, time-to-failure, and priority scores).
+
+### 3. Backend Endpoints
+
+* `POST /api/v1/grievances`: Create and persist a citizen grievance report.
+* `GET /api/v1/grievances/{id}`: Retrieve a stored grievance by ID.
+* `GET /api/v1/grievances`: Query grievances with optional status, category, road, or citizen filtering.
+* `PATCH /api/v1/grievances/{id}`: Update grievance status or details.
+* `POST /api/v1/grievances/{id}/analysis`: Explicitly invoke Phase 9/10 ML pipeline for a grievance and persist structured predictions in the database.
+* `GET /api/v1/grievances/{id}/analysis`: Retrieve historical stored ML analysis outputs for a grievance.
+* `POST /api/v1/users`, `GET /api/v1/users/{id}`: Create and manage platform user records.
+* `POST /api/v1/roads`, `GET /api/v1/roads/{id}`: Create and manage physical road segment metadata.
+
+### 4. Database Migrations (Alembic)
+
+Run Alembic schema migrations:
+
+```bash
+# Apply migrations to database head
+alembic upgrade head
+
+# Generate a new migration script after model changes
+alembic revision --autogenerate -m "Descriptive migration name"
+```
+
+### 5. Running Backend & ML Tests
+
+Execute the complete test suite across all Phase 1–11 components:
+
+```bash
+# Run backend specific unit & integration tests
+pytest backend/tests
+
+# Run complete workspace test suite (197 tests)
+pytest
+```
+
 
