@@ -12,6 +12,7 @@ from backend.database import Base
 
 if TYPE_CHECKING:
     from backend.models.grievance import Grievance
+    from backend.models.work_order import WorkOrder
 
 
 class Evidence(Base):
@@ -25,6 +26,9 @@ class Evidence(Base):
     grievance_id: Mapped[str] = mapped_column(
         String(36), ForeignKey("grievances.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    work_order_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("work_orders.id", ondelete="SET NULL"), nullable=True, index=True
+    )
     file_name: Mapped[str] = mapped_column(String(255), nullable=False)
     file_type: Mapped[str] = mapped_column(String(50), nullable=False)
     storage_path: Mapped[str] = mapped_column(String(512), nullable=False)
@@ -33,5 +37,6 @@ class Evidence(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-    # Relationship
+    # Relationships
     grievance: Mapped[Grievance] = relationship("Grievance", back_populates="evidence_items")
+    work_order: Mapped[WorkOrder | None] = relationship("WorkOrder")

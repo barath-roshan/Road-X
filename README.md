@@ -835,9 +835,80 @@ pytest backend/tests/test_government_workflow.py backend/tests/test_state_machin
 # Run government API integration tests
 pytest api/tests/test_government_api.py
 
-# Run full project test suite
+# Run complete workspace test suite (218 tests)
+pytest
+```
+
+---
+
+## Phase 13 — Contractor Workflow
+
+### 1. Architectural Overview & Conceptual Workflow
+
+Phase 13 implements the **Contractor Workflow** for executing government-approved maintenance work orders. Contractors can view assigned work orders, acknowledge tasks, start repairs, submit progress percentage updates, attach completion evidence metadata, and submit completed work for government verification.
+
+```text
+Government assigns work order
+        │
+        ▼
+     ASSIGNED
+        │
+Contractor acknowledges & starts work
+        │
+    IN_PROGRESS ◄────────────────────────┐
+   /           \                         │ (Government Rejection)
+Progress    Upload Evidence              │
+   \           /                         │
+Contractor Submits Completion            │
+        │                                │
+  PENDING_VERIFICATION                   │
+        │                                │
+Government Verification (Phase 12) ──────┘
+   /         \
+APPROVE    REJECT
+  /           \
+RESOLVED     IN_PROGRESS
+```
+
+### 2. Strict Business Rules & Security
+
+1. **Contractor Completion Cannot Resolve Grievance:** Submitting work order completion transitions the `WorkOrder` and `Grievance` to `PENDING_VERIFICATION`. Only Phase 12 Government Verification can transition a grievance to `RESOLVED` and work order to `COMPLETED`.
+2. **Work Order Ownership Scoping:** Contractor A cannot access, view, or modify work orders assigned to Contractor B (`work_order.assigned_contractor_id == current_actor.user_id`). Access attempts to unassigned work orders yield `403 Forbidden` (`UnauthorizedError`).
+3. **Role Enforcement:** All contractor endpoints strictly enforce `UserRole.CONTRACTOR` actor context.
+4. **Progress Percentage Validation:** Progress updates are strictly validated ($0 \le \text{progress\_percentage} \le 100$). Progress updates—even at 100%—never automatically mark a work order or grievance as completed or resolved.
+5. **Rejection & Rework Loop:** When a government officer rejects completion verification (`REJECT`), the work order and grievance revert to `IN_PROGRESS`. The contractor can view the officer's rejection feedback, perform required rework, attach updated evidence, and re-submit for verification.
+
+### 3. Database Entities & Schemas
+
+* **`WorkProgress`** (`work_progresses` table): Logs contractor progress percentage updates (0-100%), progress notes, and timestamps.
+* **`Evidence`** (`evidences` table): Extended with `work_order_id` foreign key for attaching completion photos and proof metadata to work orders.
+* **`WorkflowEvent`** (`workflow_events` table): Extended with contractor audit event types (`WORK_ORDER_ACKNOWLEDGED`, `WORK_STARTED`, `WORK_PROGRESS_UPDATED`, `WORK_COMPLETION_SUBMITTED`).
+
+### 4. Contractor API Endpoints
+
+* `GET /api/v1/contractor/work-orders`: List work orders assigned to the authenticated contractor.
+* `GET /api/v1/contractor/work-orders/{id}`: Retrieve detailed work order view including grievance description, road location, instructions, progress history, evidence list, and latest government rejection feedback.
+* `POST /api/v1/contractor/work-orders/{id}/accept`: Acknowledge assignment receipt.
+* `POST /api/v1/contractor/work-orders/{id}/start`: Start work (`ASSIGNED → IN_PROGRESS`).
+* `POST /api/v1/contractor/work-orders/{id}/progress`: Log progress percentage update (0-100%).
+* `POST /api/v1/contractor/work-orders/{id}/evidence`: Attach completion evidence photo/document metadata.
+* `POST /api/v1/contractor/work-orders/{id}/submit`: Submit completed repair work for government verification (`IN_PROGRESS → PENDING_VERIFICATION`).
+
+### 5. Running Phase 13 Tests
+
+Execute the workspace test suite (218 total passing tests across all modules):
+
+```bash
+# Run contractor workflow service & unit tests
+pytest backend/tests/test_contractor_workflow.py
+
+# Run contractor API integration tests
+pytest api/tests/test_contractor_api.py
+
+# Run full project test suite (218 tests)
 pytest
 ```
 
 #barath-roshan
+
 

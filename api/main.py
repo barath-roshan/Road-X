@@ -14,7 +14,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api.config import api_settings
-from api.routes import health_router, ml_router, grievance_router, government_router
+from api.routes import health_router, ml_router, grievance_router, government_router, contractor_router
 from api.schemas.responses import APIErrorDetails, APIErrorResponse
 from api.service import MLInferenceService
 from ml.common.logging_config import get_logger, setup_logging
@@ -174,3 +174,4 @@ app.include_router(health_router)
 app.include_router(ml_router)
 app.include_router(grievance_router)
 app.include_router(government_router)
+app.include_router(contractor_router)

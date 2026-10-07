@@ -8,6 +8,7 @@ from backend.repositories.government_review_repository import GovernmentReviewRe
 from backend.repositories.work_order_repository import WorkOrderRepository
 from backend.repositories.government_verification_repository import GovernmentVerificationRepository
 from backend.repositories.workflow_event_repository import WorkflowEventRepository
+from backend.repositories.work_progress_repository import WorkProgressRepository
 
 __all__ = [
     "UserRepository",
@@ -18,4 +19,5 @@ __all__ = [
     "WorkOrderRepository",
     "GovernmentVerificationRepository",
     "WorkflowEventRepository",
+    "WorkProgressRepository",
 ]

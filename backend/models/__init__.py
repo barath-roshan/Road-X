@@ -10,6 +10,7 @@ from backend.models.government_review import GovernmentReview, ReviewDecision
 from backend.models.work_order import WorkOrder, WorkOrderStatus
 from backend.models.government_verification import GovernmentVerification, VerificationDecision
 from backend.models.workflow_event import WorkflowEvent, WorkflowEventType
+from backend.models.work_progress import WorkProgress
 
 __all__ = [
     "Base",
@@ -28,4 +29,5 @@ __all__ = [
     "VerificationDecision",
     "WorkflowEvent",
     "WorkflowEventType",
+    "WorkProgress",
 ]

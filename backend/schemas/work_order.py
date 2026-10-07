@@ -7,6 +7,8 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from backend.models.work_order import WorkOrderStatus
+from backend.schemas.evidence import EvidenceRead
+from backend.schemas.work_progress import WorkProgressRead
 
 
 class WorkOrderCreate(BaseModel):
@@ -44,3 +46,17 @@ class WorkOrderRead(BaseModel):
     status: WorkOrderStatus = Field(description="Current work order status")
     created_at: datetime = Field(description="Creation timestamp")
     updated_at: datetime = Field(description="Last update timestamp")
+
+
+class ContractorWorkOrderDetailsRead(WorkOrderRead):
+    """Detailed response schema for contractor viewing an assigned work order."""
+
+    grievance_description: Optional[str] = Field(default=None, description="Grievance description text")
+    grievance_issue_category: Optional[str] = Field(default=None, description="Grievance category")
+    grievance_latitude: Optional[float] = Field(default=None, description="Grievance latitude")
+    grievance_longitude: Optional[float] = Field(default=None, description="Grievance longitude")
+    road_name: Optional[str] = Field(default=None, description="Physical road name")
+    road_code: Optional[str] = Field(default=None, description="Road segment code identifier")
+    progress_history: list[WorkProgressRead] = Field(default_factory=list, description="Chronological progress history updates")
+    evidence_items: list[EvidenceRead] = Field(default_factory=list, description="Attached evidence items")
+    latest_rejection_notes: Optional[str] = Field(default=None, description="Feedback notes from latest government completion rejection, if applicable")

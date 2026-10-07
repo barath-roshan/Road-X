@@ -17,9 +17,10 @@ class EvidenceBase(BaseModel):
 
 
 class EvidenceCreate(EvidenceBase):
-    """Request schema for attaching evidence to a grievance."""
+    """Request schema for attaching evidence to a grievance or work order."""
 
     grievance_id: str = Field(description="Target grievance UUID")
+    work_order_id: Optional[str] = Field(default=None, description="Optional associated work order UUID")
 
 
 class EvidenceRead(EvidenceBase):
@@ -29,4 +30,5 @@ class EvidenceRead(EvidenceBase):
 
     id: str = Field(description="Unique evidence UUID identifier")
     grievance_id: str = Field(description="Target grievance UUID")
+    work_order_id: Optional[str] = Field(default=None, description="Associated work order UUID")
     uploaded_at: datetime = Field(description="Upload timestamp")
