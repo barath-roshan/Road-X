@@ -89,8 +89,8 @@ def chat_seed_data(db_session: Session):
 def test_create_and_list_chat_conversations(api_client: TestClient, chat_seed_data):
     """Test POST and GET conversations endpoints for authenticated citizen."""
     headers_a = {
-        "X-User-ID": chat_seed_data["citizen_a"].id,
-        "X-User-Role": "CITIZEN",
+        "X-Actor-User-ID": chat_seed_data["citizen_a"].id,
+        "X-Actor-Role": "CITIZEN",
     }
 
     # 1. Create conversation
@@ -117,8 +117,8 @@ def test_create_and_list_chat_conversations(api_client: TestClient, chat_seed_da
 def test_send_message_and_rag_response(api_client: TestClient, chat_seed_data):
     """Test sending user question and receiving grounded RAG answer with source metadata."""
     headers_a = {
-        "X-User-ID": chat_seed_data["citizen_a"].id,
-        "X-User-Role": "CITIZEN",
+        "X-Actor-User-ID": chat_seed_data["citizen_a"].id,
+        "X-Actor-Role": "CITIZEN",
     }
 
     # Create session
@@ -162,16 +162,16 @@ def test_send_message_and_rag_response(api_client: TestClient, chat_seed_data):
 def test_chat_authorization_isolation(api_client: TestClient, chat_seed_data):
     """Test that unauthorized roles or other citizens cannot access another citizen's conversation."""
     headers_a = {
-        "X-User-ID": chat_seed_data["citizen_a"].id,
-        "X-User-Role": "CITIZEN",
+        "X-Actor-User-ID": chat_seed_data["citizen_a"].id,
+        "X-Actor-Role": "CITIZEN",
     }
     headers_b = {
-        "X-User-ID": chat_seed_data["citizen_b"].id,
-        "X-User-Role": "CITIZEN",
+        "X-Actor-User-ID": chat_seed_data["citizen_b"].id,
+        "X-Actor-Role": "CITIZEN",
     }
     headers_contractor = {
-        "X-User-ID": chat_seed_data["contractor"].id,
-        "X-User-Role": "CONTRACTOR",
+        "X-Actor-User-ID": chat_seed_data["contractor"].id,
+        "X-Actor-Role": "CONTRACTOR",
     }
 
     # Citizen A creates conversation
@@ -209,8 +209,8 @@ def test_chat_authorization_isolation(api_client: TestClient, chat_seed_data):
 def test_chat_invalid_payload_validation(api_client: TestClient, chat_seed_data):
     """Test validation rejection of blank or empty chat messages."""
     headers_a = {
-        "X-User-ID": chat_seed_data["citizen_a"].id,
-        "X-User-Role": "CITIZEN",
+        "X-Actor-User-ID": chat_seed_data["citizen_a"].id,
+        "X-Actor-Role": "CITIZEN",
     }
 
     conv = api_client.post(
@@ -225,3 +225,4 @@ def test_chat_invalid_payload_validation(api_client: TestClient, chat_seed_data)
         json={"content": "   "},
     )
     assert res_empty.status_code in [400, 422]
+
