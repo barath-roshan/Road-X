@@ -239,3 +239,78 @@ def test_completion_submission_and_government_verification_lifecycle(db_session:
     # 7. Final status verification
     assert wo_db.status == WorkOrderStatus.COMPLETED
     assert gr_db.status == GrievanceStatus.RESOLVED
+
+
+def test_progress_monotonicity_validation(db_session: Session, setup_data):
+    """Verify decreasing progress percentage without correction note raises error, but succeeds with explanation."""
+    service = ContractorWorkflowService(db_session)
+    wo = setup_data["work_order"]
+    contractor_actor = UserContext(user_id=setup_data["contractor_a"].id, role=UserRole.CONTRACTOR)
+
+    service.start_work_order(actor=contractor_actor, work_order_id=wo.id)
+    service.update_progress(actor=contractor_actor, work_order_id=wo.id, progress_percentage=75, note="Paving 75% complete")
+
+    # Attempt decreasing progress from 75% to 30% without correction note -> fails
+    with pytest.raises(RoadXDataError) as exc_info:
+        service.update_progress(actor=contractor_actor, work_order_id=wo.id, progress_percentage=30, note="Just checking")
+    assert "cannot decrease" in str(exc_info.value)
+
+    # Attempt decreasing progress with explicit correction note -> succeeds
+    rework_prog = service.update_progress(
+        actor=contractor_actor,
+        work_order_id=wo.id,
+        progress_percentage=40,
+        note="Rework needed due to heavy rain damage during curing",
+    )
+    assert rework_prog.progress_percentage == 40
+
+
+def test_evidence_metadata_validation(db_session: Session, setup_data):
+    """Verify invalid evidence metadata arguments raise RoadXDataError."""
+    service = ContractorWorkflowService(db_session)
+    wo = setup_data["work_order"]
+    contractor_actor = UserContext(user_id=setup_data["contractor_a"].id, role=UserRole.CONTRACTOR)
+
+    # Empty file_name
+    with pytest.raises(RoadXDataError):
+        service.attach_evidence(
+            actor=contractor_actor,
+            work_order_id=wo.id,
+            file_name="",
+            file_type="image/png",
+            storage_path="/path/test.png",
+        )
+
+    # Negative file size
+    with pytest.raises(RoadXDataError):
+        service.attach_evidence(
+            actor=contractor_actor,
+            work_order_id=wo.id,
+            file_name="test.png",
+            file_type="image/png",
+            storage_path="/path/test.png",
+            file_size_bytes=-100,
+        )
+
+
+def test_duplicate_submit_completion_rejection(db_session: Session, setup_data):
+    """Verify submitting completion when already in PENDING_VERIFICATION raises InvalidStateTransitionError."""
+    service = ContractorWorkflowService(db_session)
+    wo = setup_data["work_order"]
+    contractor_actor = UserContext(user_id=setup_data["contractor_a"].id, role=UserRole.CONTRACTOR)
+
+    service.start_work_order(actor=contractor_actor, work_order_id=wo.id)
+    service.submit_completion(
+        actor=contractor_actor,
+        work_order_id=wo.id,
+        payload=CompletionSubmissionCreate(completion_note="Work finished."),
+    )
+
+    # Re-submitting while already pending verification raises error
+    with pytest.raises(InvalidStateTransitionError):
+        service.submit_completion(
+            actor=contractor_actor,
+            work_order_id=wo.id,
+            payload=CompletionSubmissionCreate(completion_note="Submitting again."),
+        )
+

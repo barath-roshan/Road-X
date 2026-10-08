@@ -176,6 +176,11 @@ class ContractorWorkflowService:
 
         self._verify_contractor_ownership(actor, wo)
 
+        if wo.status in (WorkOrderStatus.COMPLETED, WorkOrderStatus.CANCELLED):
+            raise InvalidStateTransitionError(
+                f"Cannot acknowledge work order in state '{wo.status.value}'."
+            )
+
         self._log_workflow_event(
             grievance_id=wo.grievance_id,
             work_order_id=wo.id,
@@ -258,6 +263,19 @@ class ContractorWorkflowService:
                 f"Cannot update progress when work order is in state '{wo.status.value}'."
             )
 
+        # Monotonicity check against previous progress entries
+        existing_progresses = self.progress_repo.get_by_work_order(wo.id)
+        if existing_progresses:
+            latest_pct = existing_progresses[-1].progress_percentage
+            if progress_percentage < latest_pct:
+                note_lower = (note or "").lower()
+                correction_keywords = ["correction", "rework", "revised", "reset", "rollback", "adjustment"]
+                if not any(kw in note_lower for kw in correction_keywords):
+                    raise RoadXDataError(
+                        f"Progress percentage cannot decrease from {latest_pct}% to {progress_percentage}% "
+                        f"without an explicit correction or rework note."
+                    )
+
         # Auto-start work if work order is currently ASSIGNED
         if wo.status == WorkOrderStatus.ASSIGNED:
             wo.status = WorkOrderStatus.IN_PROGRESS
@@ -304,11 +322,21 @@ class ContractorWorkflowService:
         file_size_bytes: Optional[int] = None,
     ) -> Evidence:
         """Attach completion or progress evidence metadata to a work order."""
+        if not file_name or not file_name.strip() or not file_type or not file_type.strip() or not storage_path or not storage_path.strip():
+            raise RoadXDataError("Evidence metadata file_name, file_type, and storage_path must be non-empty strings.")
+        if file_size_bytes is not None and file_size_bytes < 0:
+            raise RoadXDataError("Evidence file_size_bytes cannot be negative.")
+
         wo = self.work_order_repo.get_by_id(work_order_id)
         if not wo:
             raise RoadXDataError(f"Work order with ID '{work_order_id}' not found.")
 
         self._verify_contractor_ownership(actor, wo)
+
+        if wo.status in (WorkOrderStatus.COMPLETED, WorkOrderStatus.CANCELLED):
+            raise InvalidStateTransitionError(
+                f"Cannot attach evidence to work order in state '{wo.status.value}'."
+            )
 
         evidence = Evidence(
             grievance_id=wo.grievance_id,
@@ -345,6 +373,13 @@ class ContractorWorkflowService:
             raise RoadXDataError(f"Work order with ID '{work_order_id}' not found.")
 
         self._verify_contractor_ownership(actor, wo)
+
+        if wo.status == WorkOrderStatus.PENDING_VERIFICATION:
+            raise InvalidStateTransitionError("Work order is already pending government verification.")
+        if wo.status in (WorkOrderStatus.COMPLETED, WorkOrderStatus.CANCELLED):
+            raise InvalidStateTransitionError(
+                f"Cannot submit completion for work order in state '{wo.status.value}'."
+            )
 
         # Validate current status: must be IN_PROGRESS or ASSIGNED
         if wo.status == WorkOrderStatus.ASSIGNED:

@@ -896,7 +896,7 @@ RESOLVED     IN_PROGRESS
 
 ### 5. Running Phase 13 Tests
 
-Execute the workspace test suite (218 total passing tests across all modules):
+Execute the workspace test suite (236 total passing tests across all modules):
 
 ```bash
 # Run contractor workflow service & unit tests
@@ -905,7 +905,7 @@ pytest backend/tests/test_contractor_workflow.py
 # Run contractor API integration tests
 pytest api/tests/test_contractor_api.py
 
-# Run full project test suite (218 tests)
+# Run full project test suite (236 tests)
 pytest
 ```
 
