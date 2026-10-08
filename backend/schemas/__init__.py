@@ -33,6 +33,14 @@ from backend.schemas.government_dashboard import (
     GovernmentDashboardWorkOrderItemRead,
     GovernmentDashboardContractorSummaryRead,
 )
+from backend.schemas.contractor_dashboard import (
+    ContractorDashboardOverviewRead,
+    ContractorDashboardWorkOrderItemRead,
+    ContractorDashboardWorkOrderDetailRead,
+    ContractorDashboardPendingVerificationItemRead,
+    ContractorDashboardReworkItemRead,
+    ContractorDashboardWorkloadSummaryRead,
+)
 
 __all__ = [
     "UserCreate",
@@ -74,4 +82,10 @@ __all__ = [
     "GovernmentDashboardVerificationItemRead",
     "GovernmentDashboardWorkOrderItemRead",
     "GovernmentDashboardContractorSummaryRead",
+    "ContractorDashboardOverviewRead",
+    "ContractorDashboardWorkOrderItemRead",
+    "ContractorDashboardWorkOrderDetailRead",
+    "ContractorDashboardPendingVerificationItemRead",
+    "ContractorDashboardReworkItemRead",
+    "ContractorDashboardWorkloadSummaryRead",
 ]

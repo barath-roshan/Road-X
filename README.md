@@ -1023,6 +1023,63 @@ pytest api/tests/test_government_dashboard_api.py
 pytest
 ```
 
+---
+
+## Phase 16 — Contractor Dashboard
+
+### 1. Architectural Overview & Design
+
+Phase 16 implements the **Contractor Dashboard backend/API layer**, providing contractors with a clean, read-oriented view of their assigned maintenance workload, progress history, completion evidence metadata, government rejection feedback, pending verifications, and personal workload statistics.
+
+```text
+Contractor (UserRole.CONTRACTOR)
+               │
+               │ HTTP GET
+               ▼
+   FastAPI Contractor Dashboard Router (/api/v1/contractor/dashboard/...)
+               │
+               │ Ownership Check (assigned_contractor_id == actor.user_id)
+               ▼
+   ContractorDashboardService (backend/services/contractor_dashboard_service.py)
+               │
+ ┌─────────────┼─────────────┬─────────────┬─────────────┐
+ ▼             ▼             ▼             ▼             ▼
+Overview    Assigned      Work Order    Pending       Rework Queue
+Stats       Work Orders   Detail        Verification  & Feedback
+```
+
+### 2. Strict Security Rules & Data Boundaries
+
+1. **Strict Ownership Isolation:** Every contractor dashboard endpoint strictly enforces `work_order.assigned_contractor_id == current_actor.user_id`. Contractor A can NEVER view or access Contractor B's work orders, progress history, evidence metadata, government rejection notes, or workload statistics. Unauthorized access attempts yield `403 Forbidden` (`UnauthorizedError`).
+2. **Role Enforcement:** Every dashboard endpoint strictly enforces `UserRole.CONTRACTOR` actor context (`actor.require_role(UserRole.CONTRACTOR)`). Access attempts by `CITIZEN` or `GOVERNMENT_OFFICER` actors yield `403 Forbidden`.
+3. **Read-Only Dashboard Principle:** Dashboard endpoints are strictly read-only for tracking and monitoring. State transitions and workflow mutations continue to pass through Phase 13 `ContractorWorkflowService` (`accept`, `start`, `progress`, `evidence`, `submit`) to prevent alternate state mutation logic.
+4. **Data Minimization:** Exposes contractor-necessary work details (issue category, description, location, severity level, priority) without exposing citizen private details, raw stack traces, internal ML pipeline weights, or government authentication secrets.
+
+### 3. Contractor Dashboard API Endpoints
+
+* `GET /api/v1/contractor/dashboard/overview`: Aggregate dashboard metrics for current contractor (total assigned, assigned, in_progress, pending_verification, completed, rework count, average_progress).
+* `GET /api/v1/contractor/dashboard/work-orders`: Assigned work orders list with filtering (`status`, `priority`, `date_from`, `date_to`), sorting (`created_at`, `updated_at`, `priority`, `status`), and pagination.
+* `GET /api/v1/contractor/dashboard/work-orders/{id}`: Detailed contractor-safe work order view including road location, grievance ref, progress history, completion evidence metadata, government verification status, rejection feedback, and workflow timeline.
+* `GET /api/v1/contractor/dashboard/pending-verification`: Work orders assigned to current contractor in `PENDING_VERIFICATION` status with attached evidence metadata.
+* `GET /api/v1/contractor/dashboard/rework`: Work orders rejected by government officer requiring contractor rework, including officer rejection feedback message and timestamp.
+* `GET /api/v1/contractor/dashboard/workload`: Personal workload statistics (total assignments, active assignments, pending verification, rework required, resolved/completed, average completion percentage).
+
+### 4. Running Phase 16 Tests
+
+Execute the workspace test suite (270 total passing tests across all modules):
+
+```bash
+# Run contractor dashboard service & unit tests
+pytest backend/tests/test_contractor_dashboard.py
+
+# Run contractor dashboard API integration tests
+pytest api/tests/test_contractor_dashboard_api.py
+
+# Run full project test suite (270 tests)
+pytest
+```
+
 #barath-roshan
+
 
 

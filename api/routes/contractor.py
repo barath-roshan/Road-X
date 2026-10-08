@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -15,7 +16,16 @@ from backend.schemas.completion_submission import CompletionSubmissionCreate, Co
 from backend.schemas.evidence import EvidenceCreate, EvidenceRead
 from backend.schemas.work_order import ContractorWorkOrderDetailsRead, WorkOrderRead
 from backend.schemas.work_progress import WorkProgressCreate, WorkProgressRead
+from backend.schemas.contractor_dashboard import (
+    ContractorDashboardOverviewRead,
+    ContractorDashboardWorkOrderItemRead,
+    ContractorDashboardWorkOrderDetailRead,
+    ContractorDashboardPendingVerificationItemRead,
+    ContractorDashboardReworkItemRead,
+    ContractorDashboardWorkloadSummaryRead,
+)
 from backend.security import UserContext, UnauthorizedError, InvalidStateTransitionError
+from backend.services.contractor_dashboard_service import ContractorDashboardService
 from backend.services.contractor_workflow_service import ContractorWorkflowService
 from ml.common.exceptions import RoadXDataError
 
@@ -199,3 +209,139 @@ def submit_work_completion(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
     except (InvalidStateTransitionError, RoadXDataError) as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+
+# --- Contractor Dashboard Endpoints ---
+
+@router.get(
+    "/dashboard/overview",
+    response_model=ContractorDashboardOverviewRead,
+    summary="Get Contractor Dashboard Overview Statistics",
+    description="Returns aggregate workload metrics for the authenticated contractor.",
+)
+def get_contractor_dashboard_overview(
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> ContractorDashboardOverviewRead:
+    """Retrieve overview metrics for current contractor dashboard."""
+    service = ContractorDashboardService(db)
+    try:
+        return service.get_overview(actor=actor)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/work-orders",
+    response_model=List[ContractorDashboardWorkOrderItemRead],
+    summary="List Assigned Work Orders for Contractor Dashboard",
+    description="Returns assigned work orders with status, priority, date filtering, sorting, and pagination.",
+)
+def list_contractor_dashboard_work_orders(
+    status_filter: Optional[WorkOrderStatus] = Query(default=None, alias="status"),
+    priority: Optional[str] = Query(default=None),
+    date_from: Optional[datetime] = Query(default=None),
+    date_to: Optional[datetime] = Query(default=None),
+    sort_by: str = Query(default="created_at"),
+    sort_order: str = Query(default="desc"),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[ContractorDashboardWorkOrderItemRead]:
+    """Retrieve work orders for current contractor dashboard."""
+    service = ContractorDashboardService(db)
+    try:
+        return service.list_assigned_work_orders(
+            actor=actor,
+            status_filter=status_filter,
+            priority=priority,
+            date_from=date_from,
+            date_to=date_to,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            skip=skip,
+            limit=limit,
+        )
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/work-orders/{work_order_id}",
+    response_model=ContractorDashboardWorkOrderDetailRead,
+    summary="Get Detailed Contractor Work Order View",
+    description="Returns detailed contractor-safe work order information, road details, grievance reference, progress history, completion evidence, rejection feedback, and workflow timeline.",
+)
+def get_contractor_dashboard_work_order_detail(
+    work_order_id: str,
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> ContractorDashboardWorkOrderDetailRead:
+    """Retrieve detailed work order view for current contractor."""
+    service = ContractorDashboardService(db)
+    try:
+        return service.get_work_order_detail(actor=actor, work_order_id=work_order_id)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except RoadXDataError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/pending-verification",
+    response_model=List[ContractorDashboardPendingVerificationItemRead],
+    summary="Get Work Orders Pending Government Verification",
+    description="Returns assigned work orders awaiting government officer completion verification.",
+)
+def get_contractor_dashboard_pending_verification(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[ContractorDashboardPendingVerificationItemRead]:
+    """Retrieve pending verification work orders for current contractor."""
+    service = ContractorDashboardService(db)
+    try:
+        return service.get_pending_verification_queue(actor=actor, skip=skip, limit=limit)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/rework",
+    response_model=List[ContractorDashboardReworkItemRead],
+    summary="Get Contractor Rework Queue",
+    description="Returns work orders rejected by government officer requiring contractor rework and action.",
+)
+def get_contractor_dashboard_rework(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[ContractorDashboardReworkItemRead]:
+    """Retrieve rework queue for current contractor."""
+    service = ContractorDashboardService(db)
+    try:
+        return service.get_rework_queue(actor=actor, skip=skip, limit=limit)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/workload",
+    response_model=ContractorDashboardWorkloadSummaryRead,
+    summary="Get Contractor Personal Workload Statistics",
+    description="Returns summary metrics of assigned, active, pending verification, rework, resolved, and average progress for current contractor.",
+)
+def get_contractor_dashboard_workload(
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> ContractorDashboardWorkloadSummaryRead:
+    """Retrieve personal workload metrics for current contractor."""
+    service = ContractorDashboardService(db)
+    try:
+        return service.get_workload_summary(actor=actor)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
