@@ -953,7 +953,7 @@ Government & Contractor Workflows (Phases 12 & 13)
 
 ### 4. Running Phase 14 Tests
 
-Execute the workspace test suite (244 total passing tests across all modules):
+Execute the workspace test suite (258 total passing tests across all modules):
 
 ```bash
 # Run citizen workflow service & unit tests
@@ -962,7 +962,64 @@ pytest backend/tests/test_citizen_workflow.py
 # Run citizen API integration tests
 pytest api/tests/test_citizen_api.py
 
-# Run full project test suite (244 tests)
+# Run full project test suite (258 tests)
+pytest
+```
+
+---
+
+## Phase 15 — Government Dashboard
+
+### 1. Architectural Overview & Design
+
+Phase 15 implements the **Government Dashboard backend/API layer**, providing government officers with executive analytics, search, queue management, contractor monitoring, and prioritized workload visibility over existing persisted entities.
+
+```text
+Government Officer (UserRole.GOVERNMENT_OFFICER)
+                       │
+                       │ HTTP GET
+                       ▼
+          FastAPI Dashboard Router (/api/v1/government/dashboard/...)
+                       │
+                       ▼
+          GovernmentDashboardService (backend/services/government_dashboard_service.py)
+                       │
+         ┌─────────────┼─────────────┬─────────────┐
+         ▼             ▼             ▼             ▼
+   Overview Stats   Grievance    Priority &    Contractor &
+   Aggregations     Search       Verification  Work Order
+                                 Queues        Monitoring
+```
+
+### 2. Strict Business Rules & Security Boundaries
+
+1. **Role Boundary Enforcement:** All dashboard endpoints strictly require `UserRole.GOVERNMENT_OFFICER` actor context. Access attempts by `CITIZEN` or `CONTRACTOR` actors yield `403 Forbidden` (`UnauthorizedError`).
+2. **Read-Only Dashboard Layer:** The dashboard layer is strictly read-only for monitoring and decision support. Workflow state transitions (review decisions, work order dispatch, completion verifications) continue to pass through `GovernmentWorkflowService` to maintain a single source of truth.
+3. **ML Priority Queue Consumption:** The maintenance priority queue (`GET /api/v1/government/dashboard/priority-queue`) strictly consumes Phase 8 Maintenance Priority scores without recalculating arbitrary formulas.
+4. **Verification Queue Integration:** The verification queue (`GET /api/v1/government/dashboard/verification-queue`) surfaces work orders where `WorkOrder.status == PENDING_VERIFICATION`.
+
+### 3. Government Dashboard API Endpoints
+
+* `GET /api/v1/government/dashboard/overview`: Aggregate dashboard metrics (total grievances, status counts, priority/severity counts, active contractors, pending verifications).
+* `GET /api/v1/government/dashboard/grievances`: Filtered and searched grievances list (supports `status`, `category`, `priority`, `severity`, `risk_level`, `search`, `date_from`, `date_to`, `sort_by`, `sort_order`, pagination).
+* `GET /api/v1/government/dashboard/grievances/{id}`: Detailed case view including citizen ref, road info, evidence, ML outputs, work orders, progress history, reviews, verifications, and timeline.
+* `GET /api/v1/government/dashboard/priority-queue`: Prioritized maintenance queue sorted strictly by Phase 8 ML priority scores.
+* `GET /api/v1/government/dashboard/verification-queue`: Work orders awaiting government completion verification.
+* `GET /api/v1/government/dashboard/work-orders`: Work order monitoring queue with contractor progress percentages.
+* `GET /api/v1/government/dashboard/contractors`: Read-only summary of contractor workload, active jobs, and average progress.
+
+### 4. Running Phase 15 Tests
+
+Execute the workspace test suite (258 total passing tests across all modules):
+
+```bash
+# Run government dashboard service & unit tests
+pytest backend/tests/test_government_dashboard.py
+
+# Run government dashboard API integration tests
+pytest api/tests/test_government_dashboard_api.py
+
+# Run full project test suite (258 tests)
 pytest
 ```
 

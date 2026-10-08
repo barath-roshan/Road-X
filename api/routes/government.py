@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -11,12 +12,22 @@ from api.dependencies import get_current_actor
 from backend.database import get_db
 from backend.models.grievance import GrievanceStatus
 from backend.models.work_order import WorkOrderStatus
+from backend.schemas.government_dashboard import (
+    GovernmentDashboardOverviewRead,
+    GovernmentDashboardGrievanceItemRead,
+    GovernmentDashboardGrievanceDetailRead,
+    GovernmentDashboardPriorityItemRead,
+    GovernmentDashboardVerificationItemRead,
+    GovernmentDashboardWorkOrderItemRead,
+    GovernmentDashboardContractorSummaryRead,
+)
 from backend.schemas.government_review import GovernmentReviewCreate, GovernmentReviewRead
 from backend.schemas.government_verification import GovernmentVerificationCreate, GovernmentVerificationRead
 from backend.schemas.grievance import GrievanceRead
 from backend.schemas.work_order import WorkOrderCreate, WorkOrderRead
 from backend.schemas.workflow_event import WorkflowEventRead
 from backend.security import UserContext, UnauthorizedError, InvalidStateTransitionError
+from backend.services.government_dashboard_service import GovernmentDashboardService
 from backend.services.government_workflow_service import GovernmentWorkflowService
 from backend.services.grievance_service import GrievanceService
 from backend.repositories.work_order_repository import WorkOrderRepository
@@ -247,3 +258,183 @@ def get_grievance_history(
         return [WorkflowEventRead.model_validate(ev) for ev in history]
     except RoadXDataError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+# --- Government Dashboard Endpoints ---
+
+@router.get(
+    "/dashboard/overview",
+    response_model=GovernmentDashboardOverviewRead,
+    summary="Get Government Dashboard Overview Metrics",
+    description="Returns aggregate counts of grievances, work orders, priorities, severities, active contractors, and pending verifications.",
+)
+def get_dashboard_overview(
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentDashboardOverviewRead:
+    """Retrieve overview metrics for government dashboard."""
+    service = GovernmentDashboardService(db)
+    try:
+        return service.get_overview(actor=actor)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/grievances",
+    response_model=List[GovernmentDashboardGrievanceItemRead],
+    summary="Dashboard Grievances List & Search",
+    description="Returns filtered and searched grievances list for government dashboard.",
+)
+def list_dashboard_grievances(
+    status_filter: Optional[GrievanceStatus] = Query(default=None, alias="status"),
+    issue_category: Optional[str] = Query(default=None),
+    priority: Optional[str] = Query(default=None),
+    severity: Optional[str] = Query(default=None),
+    risk_level: Optional[str] = Query(default=None),
+    search: Optional[str] = Query(default=None),
+    date_from: Optional[datetime] = Query(default=None),
+    date_to: Optional[datetime] = Query(default=None),
+    sort_by: str = Query(default="created_at"),
+    sort_order: str = Query(default="desc"),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[GovernmentDashboardGrievanceItemRead]:
+    """Retrieve grievances list with dashboard filters and search."""
+    service = GovernmentDashboardService(db)
+    try:
+        return service.list_dashboard_grievances(
+            actor=actor,
+            status_filter=status_filter,
+            issue_category=issue_category,
+            priority=priority,
+            severity=severity,
+            risk_level=risk_level,
+            search=search,
+            date_from=date_from,
+            date_to=date_to,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            skip=skip,
+            limit=limit,
+        )
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/grievances/{grievance_id}",
+    response_model=GovernmentDashboardGrievanceDetailRead,
+    summary="Get Detailed Government Grievance Case View",
+    description="Returns full government grievance details including citizen ref, road info, ML outputs, work orders, progress, reviews, and timeline.",
+)
+def get_dashboard_grievance_detail(
+    grievance_id: str,
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentDashboardGrievanceDetailRead:
+    """Retrieve detailed government grievance case view."""
+    service = GovernmentDashboardService(db)
+    try:
+        return service.get_dashboard_grievance_detail(actor=actor, grievance_id=grievance_id)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except RoadXDataError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/priority-queue",
+    response_model=List[GovernmentDashboardPriorityItemRead],
+    summary="Get Prioritized Maintenance Queue",
+    description="Returns grievances ordered by Phase 8 Maintenance Priority score.",
+)
+def get_priority_queue(
+    min_priority: Optional[str] = Query(default=None),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[GovernmentDashboardPriorityItemRead]:
+    """Retrieve prioritized maintenance queue."""
+    service = GovernmentDashboardService(db)
+    try:
+        return service.get_priority_queue(actor=actor, min_priority=min_priority, skip=skip, limit=limit)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/verification-queue",
+    response_model=List[GovernmentDashboardVerificationItemRead],
+    summary="Get Pending Verification Queue",
+    description="Returns work orders awaiting government officer completion verification.",
+)
+def get_verification_queue(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[GovernmentDashboardVerificationItemRead]:
+    """Retrieve pending verification queue."""
+    service = GovernmentDashboardService(db)
+    try:
+        return service.get_verification_queue(actor=actor, skip=skip, limit=limit)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/work-orders",
+    response_model=List[GovernmentDashboardWorkOrderItemRead],
+    summary="Government Work Orders Monitoring",
+    description="Returns work order monitoring queue with contractor progress percentages.",
+)
+def get_dashboard_work_orders(
+    status_filter: Optional[WorkOrderStatus] = Query(default=None, alias="status"),
+    priority: Optional[str] = Query(default=None),
+    assigned_contractor_id: Optional[str] = Query(default=None),
+    date_from: Optional[datetime] = Query(default=None),
+    date_to: Optional[datetime] = Query(default=None),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[GovernmentDashboardWorkOrderItemRead]:
+    """Retrieve work orders monitoring queue."""
+    service = GovernmentDashboardService(db)
+    try:
+        return service.get_work_orders_monitoring(
+            actor=actor,
+            status_filter=status_filter,
+            priority=priority,
+            assigned_contractor_id=assigned_contractor_id,
+            date_from=date_from,
+            date_to=date_to,
+            skip=skip,
+            limit=limit,
+        )
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/dashboard/contractors",
+    response_model=List[GovernmentDashboardContractorSummaryRead],
+    summary="Get Contractor Workload & Performance Summary",
+    description="Returns read-only summary of contractor workload, active jobs, and average progress.",
+)
+def get_dashboard_contractors_summary(
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[GovernmentDashboardContractorSummaryRead]:
+    """Retrieve contractor workload summary metrics."""
+    service = GovernmentDashboardService(db)
+    try:
+        return service.get_contractors_summary(actor=actor, skip=skip, limit=limit)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e

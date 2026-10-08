@@ -24,6 +24,15 @@ from backend.schemas.citizen import (
     CitizenTimelineItemRead,
     CitizenGrievanceDetailsRead,
 )
+from backend.schemas.government_dashboard import (
+    GovernmentDashboardOverviewRead,
+    GovernmentDashboardGrievanceItemRead,
+    GovernmentDashboardGrievanceDetailRead,
+    GovernmentDashboardPriorityItemRead,
+    GovernmentDashboardVerificationItemRead,
+    GovernmentDashboardWorkOrderItemRead,
+    GovernmentDashboardContractorSummaryRead,
+)
 
 __all__ = [
     "UserCreate",
@@ -58,4 +67,11 @@ __all__ = [
     "CitizenRejectionInfoRead",
     "CitizenTimelineItemRead",
     "CitizenGrievanceDetailsRead",
+    "GovernmentDashboardOverviewRead",
+    "GovernmentDashboardGrievanceItemRead",
+    "GovernmentDashboardGrievanceDetailRead",
+    "GovernmentDashboardPriorityItemRead",
+    "GovernmentDashboardVerificationItemRead",
+    "GovernmentDashboardWorkOrderItemRead",
+    "GovernmentDashboardContractorSummaryRead",
 ]
