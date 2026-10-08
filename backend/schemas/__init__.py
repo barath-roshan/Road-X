@@ -48,6 +48,11 @@ from backend.schemas.road_operation import (
     GovernmentRoadOperationRead,
     CitizenRoadOperationRead,
 )
+from backend.schemas.notification import (
+    NotificationRead,
+    NotificationListResponse,
+    MarkReadResponse,
+)
 
 __all__ = [
     "UserCreate",
@@ -100,4 +105,8 @@ __all__ = [
     "RoadOperationEventRead",
     "GovernmentRoadOperationRead",
     "CitizenRoadOperationRead",
+    "NotificationRead",
+    "NotificationListResponse",
+    "MarkReadResponse",
 ]
+

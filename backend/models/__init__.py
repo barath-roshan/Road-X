@@ -17,6 +17,12 @@ from backend.models.road_operation import (
     RoadOperationStatus,
     RoadOperationEvent,
 )
+from backend.models.notification import (
+    Notification,
+    NotificationChannel,
+    DeliveryStatus,
+    NotificationType,
+)
 
 __all__ = [
     "Base",
@@ -40,4 +46,9 @@ __all__ = [
     "RoadOperationType",
     "RoadOperationStatus",
     "RoadOperationEvent",
+    "Notification",
+    "NotificationChannel",
+    "DeliveryStatus",
+    "NotificationType",
 ]
+

@@ -29,6 +29,7 @@ from backend.schemas.road_operation import (
     RoadOperationUpdate,
 )
 from backend.security import UserContext, UnauthorizedError, InvalidStateTransitionError
+from backend.services.notification_service import NotificationService
 from backend.services.state_machine import RoadOperationStateMachine
 from ml.common.exceptions import RoadXDataError
 from ml.common.logging_config import get_logger
@@ -74,6 +75,17 @@ class RoadOperationService:
             notes=notes,
         )
         self.db.add(event)
+        self.db.flush()
+
+        # Dispatch event-driven notifications
+        try:
+            operation = self.operation_repo.get_by_id(operation_id)
+            if operation:
+                notif_service = NotificationService(self.db)
+                notif_service.process_road_operation_event(event, operation)
+        except Exception as exc:
+            logger.warning("Failed to dispatch road operation notification: %s", exc)
+
         return event
 
     def _validate_foreign_keys(

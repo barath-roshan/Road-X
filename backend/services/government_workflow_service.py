@@ -19,6 +19,7 @@ from backend.repositories.work_order_repository import WorkOrderRepository
 from backend.repositories.workflow_event_repository import WorkflowEventRepository
 from backend.schemas.work_order import WorkOrderCreate
 from backend.security import UserContext, UnauthorizedError
+from backend.services.notification_service import NotificationService
 from backend.services.state_machine import GrievanceStateMachine, WorkOrderStateMachine
 from ml.common.exceptions import RoadXDataError
 from ml.common.logging_config import get_logger
@@ -60,6 +61,18 @@ class GovernmentWorkflowService:
             notes=notes,
         )
         self.db.add(event)
+        self.db.flush()
+
+        # Dispatch event-driven notifications
+        try:
+            grievance = self.grievance_repo.get_by_id(grievance_id)
+            work_order = self.work_order_repo.get_by_id(work_order_id) if work_order_id else None
+            if grievance:
+                notif_service = NotificationService(self.db)
+                notif_service.process_workflow_event(event, grievance, work_order)
+        except Exception as exc:
+            logger.warning("Failed to dispatch government workflow notification: %s", exc)
+
         return event
 
     def review_grievance(

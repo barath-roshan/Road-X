@@ -1158,6 +1158,80 @@ pytest api/tests/test_road_operation_api.py
 pytest
 ```
 
+---
+
+## Phase 18 — Notifications
+
+### 1. Architectural Overview & Design
+
+Phase 18 implements the **Notifications Subsystem**, providing an event-driven, role-aware, database-backed, multi-channel notification architecture. When municipal workflow events (`WorkflowEvent`) or road operation events (`RoadOperationEvent`) occur across RoadX services, notifications are automatically mapped, formatted via centralized templates, and dispatched to target recipients across supported delivery channels (`IN_APP` persistent storage and external `SMS` via Twilio provider abstraction).
+
+```text
+Workflow Events (Government / Contractor / Citizen / Road Ops)
+                       │
+                       ▼
+          NotificationService (backend/services/notification_service.py)
+                       │
+             Idempotency Check (event_id + recipient_id + channel)
+                       │
+        ┌──────────────┴──────────────┐
+        ▼                             ▼
+In-App Notification           Twilio SMS Provider
+(`notifications` table)       (External Twilio API / Fallback Isolation)
+        │                             │
+        ▼                             ▼
+Status: SENT                  Status: SENT / SKIPPED / FAILED
+        │
+        ▼
+User Notification API Router (/api/v1/notifications/...)
+```
+
+### 2. Strict Business Rules & Security Boundaries
+
+1. **Failure Isolation Guarantee:** External notification delivery failures (such as Twilio network issues, missing credentials, or provider outages) are captured and marked as `FAILED` with safe error notes without causing core RoadX business transactions (e.g. government review, work order dispatch, verification approvals) to roll back.
+2. **Strict Idempotency & Deduplication:** Duplicate notification dispatches for the same underlying event are prevented using unique composite idempotency keys (`idempotency_key = f"{event_id}:{recipient_id}:{channel}"`).
+3. **Recipient Ownership Scoping:** Users can strictly list, view, and mark as read ONLY their own notifications (`notification.recipient_id == actor.user_id`). Access attempts to unowned notifications yield `403 Forbidden` (`UnauthorizedError`).
+4. **Centralized Safe Templates:** Notification titles and bodies are rendered via `backend/notifications/templates.py`, producing citizen-safe messages without leaking raw ML vectors, internal database IDs, or administrative security secrets.
+5. **Environment Configuration:** Configured via `NotificationSettings` in `backend/config.py` using `NOTIFICATIONS_ENABLED`, `TWILIO_ENABLED`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`. System runs seamlessly in development without Twilio credentials.
+
+### 3. Supported Event Mappings & Recipients
+
+* **Grievance Accepted**: Citizen recipient (`grievance.citizen_id`).
+* **Grievance Rejected**: Citizen recipient (`grievance.citizen_id`).
+* **Work Order Assigned**: Contractor recipient (`work_order.assigned_contractor_id`).
+* **Work Started / Progress Update**: Citizen recipient (`grievance.citizen_id`).
+* **Work Verification Submitted**: Government Officers (`UserRole.GOVERNMENT_OFFICER`).
+* **Work Verification Approved / Grievance Resolved**: Citizen recipient & assigned Contractor.
+* **Work Verification Rejected / Rework Requested**: Contractor recipient (`work_order.assigned_contractor_id`).
+* **Road Operation Activated / Completed / Cancelled**: Linked Grievance Citizen & assigned Contractor.
+
+### 4. Database Entities & Schemas
+
+* **`Notification`** (`notifications` table): Main notification record tracking `recipient_id`, `notification_type` (`GRIEVANCE_ACCEPTED`, `GRIEVANCE_REJECTED`, `WORK_ORDER_ASSIGNED`, `WORK_STARTED`, `WORK_PROGRESS_UPDATED`, `WORK_VERIFICATION_SUBMITTED`, `WORK_VERIFICATION_APPROVED`, `WORK_VERIFICATION_REJECTED`, `ROAD_OPERATION_ACTIVATED`, `ROAD_OPERATION_COMPLETED`, `ROAD_OPERATION_CANCELLED`), `title`, `message`, `related_entity_type`, `related_entity_id`, `channel` (`IN_APP`, `SMS`), `delivery_status` (`PENDING`, `SENT`, `FAILED`, `SKIPPED`), `is_read`, `idempotency_key`, `error_message`, and timestamps (`created_at`, `read_at`, `delivered_at`).
+
+### 5. Notification API Endpoints (`/api/v1/notifications`)
+
+* `GET /api/v1/notifications`: Retrieve paginated notifications for the authenticated user (supports `unread_only` query filter, `page`, `page_size`).
+* `GET /api/v1/notifications/{notification_id}`: Retrieve detailed view of a specific user notification.
+* `POST /api/v1/notifications/{notification_id}/read`: Mark a specific user notification as read.
+* `POST /api/v1/notifications/read-all`: Mark all unread notifications for the authenticated user as read.
+
+### 6. Running Phase 18 Tests
+
+Execute the workspace test suite (283 total passing tests across all modules):
+
+```bash
+# Run notification service, template, provider, and unit tests
+pytest backend/tests/test_notification.py
+
+# Run notification API integration tests
+pytest api/tests/test_notification_api.py
+
+# Run full project test suite
+pytest
+```
+
+
 
 
 

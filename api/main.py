@@ -14,13 +14,22 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from api.config import api_settings
-from api.routes import health_router, ml_router, grievance_router, government_router, contractor_router, citizen_router
+from api.routes import (
+    health_router,
+    ml_router,
+    grievance_router,
+    government_router,
+    contractor_router,
+    citizen_router,
+    notification_router,
+)
 from api.schemas.responses import APIErrorDetails, APIErrorResponse
 from api.service import MLInferenceService
 from ml.common.logging_config import get_logger, setup_logging
 
 logger = setup_logging(log_level=api_settings.log_level)
 HTTP_422 = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
+
 
 
 @asynccontextmanager
@@ -176,3 +185,5 @@ app.include_router(grievance_router)
 app.include_router(government_router)
 app.include_router(contractor_router)
 app.include_router(citizen_router)
+app.include_router(notification_router)
+

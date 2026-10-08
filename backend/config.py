@@ -43,3 +43,28 @@ class DatabaseSettings:
 
 
 db_settings = DatabaseSettings()
+
+
+@dataclass
+class NotificationSettings:
+    """Configuration container for Notification & Twilio SMS parameters."""
+
+    notifications_enabled: bool = field(
+        default_factory=lambda: os.getenv("NOTIFICATIONS_ENABLED", "true").lower() in ("true", "1")
+    )
+    twilio_enabled: bool = field(
+        default_factory=lambda: os.getenv("TWILIO_ENABLED", "false").lower() in ("true", "1")
+    )
+    twilio_account_sid: str | None = field(
+        default_factory=lambda: os.getenv("TWILIO_ACCOUNT_SID")
+    )
+    twilio_auth_token: str | None = field(
+        default_factory=lambda: os.getenv("TWILIO_AUTH_TOKEN")
+    )
+    twilio_phone_number: str | None = field(
+        default_factory=lambda: os.getenv("TWILIO_PHONE_NUMBER")
+    )
+
+
+notification_settings = NotificationSettings()
+

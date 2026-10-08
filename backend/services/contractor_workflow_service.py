@@ -25,6 +25,7 @@ from backend.schemas.evidence import EvidenceRead
 from backend.schemas.work_order import ContractorWorkOrderDetailsRead
 from backend.schemas.work_progress import WorkProgressRead
 from backend.security import UserContext, UnauthorizedError, InvalidStateTransitionError
+from backend.services.notification_service import NotificationService
 from backend.services.state_machine import GrievanceStateMachine, WorkOrderStateMachine
 from ml.common.exceptions import RoadXDataError
 from ml.common.logging_config import get_logger
@@ -77,6 +78,18 @@ class ContractorWorkflowService:
             notes=notes,
         )
         self.db.add(event)
+        self.db.flush()
+
+        # Dispatch event-driven notifications
+        try:
+            grievance = self.grievance_repo.get_by_id(grievance_id)
+            work_order = self.work_order_repo.get_by_id(work_order_id) if work_order_id else None
+            if grievance:
+                notif_service = NotificationService(self.db)
+                notif_service.process_workflow_event(event, grievance, work_order)
+        except Exception as exc:
+            logger.warning("Failed to dispatch contractor workflow notification: %s", exc)
+
         return event
 
     def get_assigned_work_orders(
