@@ -53,6 +53,13 @@ import pytest
         "api.main",
         "api.schemas",
         "api.routes",
+        "backend",
+        "backend.config",
+        "backend.database",
+        "backend.models",
+        "backend.repositories",
+        "backend.services",
+        "backend.schemas",
     ],
 )
 def test_module_imports(module_name: str):
