@@ -160,7 +160,16 @@ def test_mock_llm_provider_grounding():
 def test_chatbot_service_flow(db_session: Session):
     """Test end-to-end CitizenChatbotService conversation creation, message processing, and history."""
     cit = User(id="cit_service_test", name="Service Test Cit", email="service@roadx.org", role=UserRole.CITIZEN)
-    db_session.add(cit)
+    road = RoadSegment(id="road_service_test", segment_id="RD-SVC-1", road_name="Oak Street")
+    grievance = Grievance(
+        id="g_svc_100",
+        citizen_id=cit.id,
+        road_id=road.id,
+        issue_category="POTHOLE",
+        description="Deep pothole on Oak Street",
+        status=GrievanceStatus.SUBMITTED,
+    )
+    db_session.add_all([cit, road, grievance])
     db_session.commit()
 
     actor = UserContext(user_id=cit.id, role=UserRole.CITIZEN)
@@ -172,11 +181,12 @@ def test_chatbot_service_flow(db_session: Session):
     assert conv.title == "My Grievance Questions"
 
     # 2. Process user message
-    resp = service.process_message(actor, conv.id, "How are potholes fixed in RoadX?")
+    resp = service.process_message(actor, conv.id, "What is the status of my road grievance?")
     assert resp.conversation_id == conv.id
-    assert resp.user_message.content == "How are potholes fixed in RoadX?"
+    assert resp.user_message.content == "What is the status of my road grievance?"
     assert resp.assistant_message.content is not None
     assert len(resp.sources) >= 1
+
 
     # 3. Retrieve conversation history
     conv_detail = service.get_conversation(actor, conv.id)
