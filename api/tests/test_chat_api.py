@@ -63,7 +63,8 @@ def chat_seed_data(db_session: Session):
     contractor = User(id="usr_con_chat", name="Contractor User", email="contractor@roadx.org", role=UserRole.CONTRACTOR)
 
 
-    road = RoadSegment(id="road_chat_1", name="Park Avenue", code="RD-CHAT-1", length_km=1.2, surface_type="asphalt")
+    road = RoadSegment(id="road_chat_1", segment_id="RD-CHAT-1", road_name="Park Avenue")
+
     grievance = Grievance(
         id="g_chat_100",
         citizen_id=citizen_a.id,

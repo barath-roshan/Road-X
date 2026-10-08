@@ -102,7 +102,8 @@ def test_citizen_data_isolation(db_session: Session):
     """Test strict database retrieval isolation ensuring citizen A cannot view citizen B records."""
     cit1 = User(id="cit_a_100", name="Citizen A", email="cit1@roadx.org", role=UserRole.CITIZEN)
     cit2 = User(id="cit_b_200", name="Citizen B", email="cit2@roadx.org", role=UserRole.CITIZEN)
-    road = RoadSegment(id="road_isolation_1", name="Broadway St", code="RD-ISO-1", length_km=2.5, surface_type="asphalt")
+    road = RoadSegment(id="road_isolation_1", segment_id="RD-ISO-1", road_name="Broadway St")
+
     
     g1 = Grievance(
         id="g_cit_a_1",
