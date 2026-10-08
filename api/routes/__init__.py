@@ -5,5 +5,13 @@ from api.routes.ml import router as ml_router
 from api.routes.grievance import router as grievance_router
 from api.routes.government import router as government_router
 from api.routes.contractor import router as contractor_router
+from api.routes.citizen import router as citizen_router
 
-__all__ = ["health_router", "ml_router", "grievance_router", "government_router", "contractor_router"]
+__all__ = [
+    "health_router",
+    "ml_router",
+    "grievance_router",
+    "government_router",
+    "contractor_router",
+    "citizen_router",
+]

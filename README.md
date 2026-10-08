@@ -896,7 +896,7 @@ RESOLVED     IN_PROGRESS
 
 ### 5. Running Phase 13 Tests
 
-Execute the workspace test suite (236 total passing tests across all modules):
+Execute the workspace test suite (244 total passing tests across all modules):
 
 ```bash
 # Run contractor workflow service & unit tests
@@ -905,7 +905,64 @@ pytest backend/tests/test_contractor_workflow.py
 # Run contractor API integration tests
 pytest api/tests/test_contractor_api.py
 
-# Run full project test suite (236 tests)
+# Run full project test suite (244 tests)
+pytest
+```
+
+---
+
+## Phase 14 — Citizen Platform
+
+### 1. Architectural Overview & Conceptual Workflow
+
+Phase 14 implements the **Citizen Platform backend/API workflow** enabling citizens to submit grievances, attach evidence metadata, list their submitted complaints, view detailed progress status, and track human-readable repair timelines without administrative mutation permissions.
+
+```text
+Citizen submits grievance report
+        │
+        ▼
+    SUBMITTED
+        │
+Government & Contractor Workflows (Phases 12 & 13)
+        │
+        ├── UNDER_REVIEW
+        ├── IN_PROGRESS (Progress percentage & contractor updates)
+        ├── PENDING_VERIFICATION
+        │        │
+        │    Government Audit
+        │     /            \
+        │  APPROVE        REJECT (Rework feedback visible to citizen)
+        │    │             │
+        ▼    ▼             ▼
+    RESOLVED           IN_PROGRESS
+```
+
+### 2. Strict Business Rules & Security Boundaries
+
+1. **No Direct Workflow Mutation:** Citizens **cannot** perform direct status mutations (e.g. `SUBMITTED → RESOLVED`). The citizen API provides `CREATE`, `READ`, and `TRACK` capabilities; all workflow status transitions are controlled strictly by server-side government and contractor workflows.
+2. **Citizen Ownership Scoping:** Requests to citizen endpoints strictly enforce `UserRole.CITIZEN` actor context and ownership (`grievance.citizen_id == current_actor.user_id`). Access or evidence attachment attempts to unowned grievances yield `403 Forbidden` (`UnauthorizedError`).
+3. **Citizen-Safe Schema Exposure:** DTO response schemas (`CitizenGrievanceDetailsRead`) expose high-level ML decision support summaries (`detected_issue`, `severity_level`, `risk_level`, `priority_level`) and progress percentages without leaking raw feature vectors, model weights, internal stack traces, or contractor private metadata.
+4. **Rejection & Rework Visibility:** If government verification audit rejects completion (`REJECT`), the citizen details view presents citizen-safe rework indicators (`is_reverted_for_rework = True`) explaining that the government officer requested contractor rework.
+
+### 3. Citizen API Endpoints
+
+* `POST /api/v1/citizen/grievances`: Create and submit a citizen grievance report (forces initial status `SUBMITTED`).
+* `GET /api/v1/citizen/grievances`: List grievances submitted by the authenticated citizen (supports status and category filters).
+* `GET /api/v1/citizen/grievances/{id}`: Retrieve detailed citizen view including location, road name, evidence list, high-level ML summary, repair progress percentage, rework notice, and human-readable timeline.
+* `POST /api/v1/citizen/grievances/{id}/evidence`: Attach evidence/photo metadata to an owned grievance report.
+
+### 4. Running Phase 14 Tests
+
+Execute the workspace test suite (244 total passing tests across all modules):
+
+```bash
+# Run citizen workflow service & unit tests
+pytest backend/tests/test_citizen_workflow.py
+
+# Run citizen API integration tests
+pytest api/tests/test_citizen_api.py
+
+# Run full project test suite (244 tests)
 pytest
 ```
 

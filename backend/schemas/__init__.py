@@ -16,6 +16,14 @@ from backend.schemas.government_verification import GovernmentVerificationCreate
 from backend.schemas.workflow_event import WorkflowEventRead
 from backend.schemas.work_progress import WorkProgressCreate, WorkProgressRead
 from backend.schemas.completion_submission import CompletionSubmissionCreate, CompletionSubmissionRead
+from backend.schemas.citizen import (
+    CitizenGrievanceCreate,
+    CitizenMLSummaryRead,
+    CitizenWorkProgressRead,
+    CitizenRejectionInfoRead,
+    CitizenTimelineItemRead,
+    CitizenGrievanceDetailsRead,
+)
 
 __all__ = [
     "UserCreate",
@@ -44,4 +52,10 @@ __all__ = [
     "WorkProgressRead",
     "CompletionSubmissionCreate",
     "CompletionSubmissionRead",
+    "CitizenGrievanceCreate",
+    "CitizenMLSummaryRead",
+    "CitizenWorkProgressRead",
+    "CitizenRejectionInfoRead",
+    "CitizenTimelineItemRead",
+    "CitizenGrievanceDetailsRead",
 ]
