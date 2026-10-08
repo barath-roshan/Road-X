@@ -19,7 +19,7 @@ from backend.repositories.road_repository import RoadRepository
 from backend.services.ml_analysis_service import MLAnalysisService
 from ml.common.exceptions import RoadXDataError
 
-HTTP_422 = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", status.HTTP_422_UNPROCESSABLE_ENTITY)
+HTTP_422 = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
 
 router = APIRouter(prefix=api_settings.api_prefix, tags=["Backend & Grievances"])
 

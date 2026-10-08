@@ -17,7 +17,7 @@ from api.service import (
     ModelNotReadyError,
 )
 
-HTTP_422 = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", status.HTTP_422_UNPROCESSABLE_ENTITY)
+HTTP_422 = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
 
 router = APIRouter(prefix=api_settings.api_prefix, tags=["ML Pipeline"])
 

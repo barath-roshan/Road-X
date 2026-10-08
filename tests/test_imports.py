@@ -46,6 +46,13 @@ import pytest
         "ml.pipeline.context",
         "ml.pipeline.stages",
         "ml.pipeline.orchestrator",
+        "api",
+        "api.config",
+        "api.dependencies",
+        "api.service",
+        "api.main",
+        "api.schemas",
+        "api.routes",
     ],
 )
 def test_module_imports(module_name: str):
