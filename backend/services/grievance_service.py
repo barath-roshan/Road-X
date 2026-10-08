@@ -10,6 +10,7 @@ from backend.repositories.grievance_repository import GrievanceRepository
 from backend.repositories.user_repository import UserRepository
 from backend.repositories.road_repository import RoadRepository
 from backend.schemas.grievance import GrievanceCreate, GrievanceUpdate
+from backend.services.state_machine import GrievanceStateMachine
 from ml.common.exceptions import RoadXDataError
 
 
@@ -87,6 +88,11 @@ class GrievanceService:
         if payload.description is not None:
             grievance.description = payload.description.strip()
         if payload.status is not None:
+            if payload.status == GrievanceStatus.RESOLVED:
+                raise RoadXDataError(
+                    "Direct status modification to RESOLVED is prohibited. Grievances can only be resolved through official government completion verification."
+                )
+            GrievanceStateMachine.validate_transition(grievance.status, payload.status)
             grievance.status = payload.status
         if payload.latitude is not None:
             grievance.latitude = payload.latitude

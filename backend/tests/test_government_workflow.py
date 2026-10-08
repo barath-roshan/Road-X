@@ -146,3 +146,21 @@ def test_audit_history_recording(db_session: Session):
     event_types = [e.event_type.value for e in history]
     assert "GRIEVANCE_ACCEPTED" in event_types
     assert "WORK_ORDER_CREATED" in event_types
+
+
+def test_direct_patch_to_resolved_is_prohibited(db_session: Session):
+    """Test that setting status to RESOLVED directly via update_grievance is prohibited."""
+    from backend.schemas.grievance import GrievanceUpdate
+    from ml.common.exceptions import RoadXDataError
+
+    grievance_service = GrievanceService(db_session)
+    grievance = grievance_service.create_grievance(
+        GrievanceCreate(issue_category="POTHOLE", description="Direct patch test grievance.")
+    )
+
+    with pytest.raises(RoadXDataError, match="Direct status modification to RESOLVED is prohibited"):
+        grievance_service.update_grievance(
+            grievance.id,
+            GrievanceUpdate(status=GrievanceStatus.RESOLVED)
+        )
+
