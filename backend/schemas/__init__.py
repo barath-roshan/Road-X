@@ -41,6 +41,13 @@ from backend.schemas.contractor_dashboard import (
     ContractorDashboardReworkItemRead,
     ContractorDashboardWorkloadSummaryRead,
 )
+from backend.schemas.road_operation import (
+    RoadOperationCreate,
+    RoadOperationUpdate,
+    RoadOperationEventRead,
+    GovernmentRoadOperationRead,
+    CitizenRoadOperationRead,
+)
 
 __all__ = [
     "UserCreate",
@@ -88,4 +95,9 @@ __all__ = [
     "ContractorDashboardPendingVerificationItemRead",
     "ContractorDashboardReworkItemRead",
     "ContractorDashboardWorkloadSummaryRead",
+    "RoadOperationCreate",
+    "RoadOperationUpdate",
+    "RoadOperationEventRead",
+    "GovernmentRoadOperationRead",
+    "CitizenRoadOperationRead",
 ]

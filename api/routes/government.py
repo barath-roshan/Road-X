@@ -12,6 +12,7 @@ from api.dependencies import get_current_actor
 from backend.database import get_db
 from backend.models.grievance import GrievanceStatus
 from backend.models.work_order import WorkOrderStatus
+from backend.models.road_operation import RoadOperationStatus, RoadOperationType
 from backend.schemas.government_dashboard import (
     GovernmentDashboardOverviewRead,
     GovernmentDashboardGrievanceItemRead,
@@ -26,10 +27,17 @@ from backend.schemas.government_verification import GovernmentVerificationCreate
 from backend.schemas.grievance import GrievanceRead
 from backend.schemas.work_order import WorkOrderCreate, WorkOrderRead
 from backend.schemas.workflow_event import WorkflowEventRead
+from backend.schemas.road_operation import (
+    RoadOperationCreate,
+    RoadOperationUpdate,
+    GovernmentRoadOperationRead,
+    RoadOperationEventRead,
+)
 from backend.security import UserContext, UnauthorizedError, InvalidStateTransitionError
 from backend.services.government_dashboard_service import GovernmentDashboardService
 from backend.services.government_workflow_service import GovernmentWorkflowService
 from backend.services.grievance_service import GrievanceService
+from backend.services.road_operation_service import RoadOperationService
 from backend.repositories.work_order_repository import WorkOrderRepository
 from ml.common.exceptions import RoadXDataError
 
@@ -438,3 +446,171 @@ def get_dashboard_contractors_summary(
         return service.get_contractors_summary(actor=actor, skip=skip, limit=limit)
     except UnauthorizedError as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+# --- Government Road Operations Endpoints ---
+
+@router.post(
+    "/road-operations",
+    response_model=GovernmentRoadOperationRead,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create Municipal Road Operation / Closure",
+    description="Publishes a government road operation, closure, or detour restriction.",
+)
+def create_road_operation(
+    payload: RoadOperationCreate,
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentRoadOperationRead:
+    """Create road operation."""
+    service = RoadOperationService(db)
+    try:
+        return service.create_operation(actor=actor, payload=payload)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except RoadXDataError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+
+@router.get(
+    "/road-operations",
+    response_model=List[GovernmentRoadOperationRead],
+    summary="List Government Road Operations",
+    description="Returns municipal road operations with status, type, road segment, and date range filtering.",
+)
+def list_government_road_operations(
+    status_filter: Optional[RoadOperationStatus] = Query(default=None, alias="status"),
+    operation_type: Optional[RoadOperationType] = Query(default=None),
+    road_id: Optional[str] = Query(default=None),
+    grievance_id: Optional[str] = Query(default=None),
+    work_order_id: Optional[str] = Query(default=None),
+    date_from: Optional[datetime] = Query(default=None),
+    date_to: Optional[datetime] = Query(default=None),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> List[GovernmentRoadOperationRead]:
+    """List road operations for government inspection."""
+    service = RoadOperationService(db)
+    try:
+        return service.list_operations_government(
+            actor=actor,
+            status_filter=status_filter,
+            operation_type=operation_type,
+            road_id=road_id,
+            grievance_id=grievance_id,
+            work_order_id=work_order_id,
+            date_from=date_from,
+            date_to=date_to,
+            skip=skip,
+            limit=limit,
+        )
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+
+
+@router.get(
+    "/road-operations/{operation_id}",
+    response_model=GovernmentRoadOperationRead,
+    summary="Get Detailed Government Road Operation",
+)
+def get_government_road_operation(
+    operation_id: str,
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentRoadOperationRead:
+    """Retrieve road operation details for government officer."""
+    service = RoadOperationService(db)
+    try:
+        return service.get_operation_government(actor=actor, operation_id=operation_id)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except RoadXDataError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@router.patch(
+    "/road-operations/{operation_id}",
+    response_model=GovernmentRoadOperationRead,
+    summary="Update Road Operation Details",
+)
+def update_road_operation(
+    operation_id: str,
+    payload: RoadOperationUpdate,
+    notes: Optional[str] = Query(default=None),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentRoadOperationRead:
+    """Update road operation."""
+    service = RoadOperationService(db)
+    try:
+        return service.update_operation(actor=actor, operation_id=operation_id, payload=payload, notes=notes)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except (InvalidStateTransitionError, RoadXDataError) as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+
+@router.post(
+    "/road-operations/{operation_id}/activate",
+    response_model=GovernmentRoadOperationRead,
+    summary="Activate Road Operation",
+)
+def activate_road_operation(
+    operation_id: str,
+    notes: Optional[str] = Query(default=None),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentRoadOperationRead:
+    """Activate road operation (PLANNED -> ACTIVE)."""
+    service = RoadOperationService(db)
+    try:
+        return service.activate_operation(actor=actor, operation_id=operation_id, notes=notes)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except (InvalidStateTransitionError, RoadXDataError) as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+
+@router.post(
+    "/road-operations/{operation_id}/complete",
+    response_model=GovernmentRoadOperationRead,
+    summary="Complete Road Operation",
+)
+def complete_road_operation(
+    operation_id: str,
+    notes: Optional[str] = Query(default=None),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentRoadOperationRead:
+    """Complete road operation (ACTIVE -> COMPLETED)."""
+    service = RoadOperationService(db)
+    try:
+        return service.complete_operation(actor=actor, operation_id=operation_id, notes=notes)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except (InvalidStateTransitionError, RoadXDataError) as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+
+
+@router.post(
+    "/road-operations/{operation_id}/cancel",
+    response_model=GovernmentRoadOperationRead,
+    summary="Cancel Road Operation",
+)
+def cancel_road_operation(
+    operation_id: str,
+    notes: Optional[str] = Query(default=None),
+    actor: UserContext = Depends(get_current_actor),
+    db: Session = Depends(get_db),
+) -> GovernmentRoadOperationRead:
+    """Cancel road operation."""
+    service = RoadOperationService(db)
+    try:
+        return service.cancel_operation(actor=actor, operation_id=operation_id, notes=notes)
+    except UnauthorizedError as e:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e)) from e
+    except (InvalidStateTransitionError, RoadXDataError) as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+

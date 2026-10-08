@@ -11,6 +11,12 @@ from backend.models.work_order import WorkOrder, WorkOrderStatus
 from backend.models.government_verification import GovernmentVerification, VerificationDecision
 from backend.models.workflow_event import WorkflowEvent, WorkflowEventType
 from backend.models.work_progress import WorkProgress
+from backend.models.road_operation import (
+    RoadOperation,
+    RoadOperationType,
+    RoadOperationStatus,
+    RoadOperationEvent,
+)
 
 __all__ = [
     "Base",
@@ -30,4 +36,8 @@ __all__ = [
     "WorkflowEvent",
     "WorkflowEventType",
     "WorkProgress",
+    "RoadOperation",
+    "RoadOperationType",
+    "RoadOperationStatus",
+    "RoadOperationEvent",
 ]

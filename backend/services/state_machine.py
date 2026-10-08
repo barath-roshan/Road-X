@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from backend.models.grievance import GrievanceStatus
 from backend.models.work_order import WorkOrderStatus
+from backend.models.road_operation import RoadOperationStatus
 from backend.security import InvalidStateTransitionError
 
 
@@ -33,15 +34,7 @@ class GrievanceStateMachine:
 
     @classmethod
     def validate_transition(cls, current_status: GrievanceStatus, target_status: GrievanceStatus) -> None:
-        """Validate whether transition from current_status to target_status is permitted.
-
-        Args:
-            current_status: Current GrievanceStatus enum.
-            target_status: Target GrievanceStatus enum.
-
-        Raises:
-            InvalidStateTransitionError if transition is illegal.
-        """
+        """Validate whether transition from current_status to target_status is permitted."""
         if current_status == target_status:
             return  # Idempotent
 
@@ -75,3 +68,34 @@ class WorkOrderStateMachine:
             raise InvalidStateTransitionError(
                 f"Illegal work order status transition: '{current_status.value}' → '{target_status.value}' is prohibited."
             )
+
+
+class RoadOperationStateMachine:
+    """Enforces strict state transitions for RoadOperation entities."""
+
+    ALLOWED_TRANSITIONS = {
+        RoadOperationStatus.PLANNED: {
+            RoadOperationStatus.ACTIVE,
+            RoadOperationStatus.COMPLETED,
+            RoadOperationStatus.CANCELLED,
+        },
+        RoadOperationStatus.ACTIVE: {
+            RoadOperationStatus.COMPLETED,
+            RoadOperationStatus.CANCELLED,
+        },
+        RoadOperationStatus.COMPLETED: set(),  # Terminal state
+        RoadOperationStatus.CANCELLED: set(),  # Terminal state
+    }
+
+    @classmethod
+    def validate_transition(cls, current_status: RoadOperationStatus, target_status: RoadOperationStatus) -> None:
+        """Validate road operation status transition."""
+        if current_status == target_status:
+            return
+
+        allowed = cls.ALLOWED_TRANSITIONS.get(current_status, set())
+        if target_status not in allowed:
+            raise InvalidStateTransitionError(
+                f"Illegal road operation status transition: '{current_status.value}' → '{target_status.value}' is prohibited."
+            )
+

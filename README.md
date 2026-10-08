@@ -1079,7 +1079,85 @@ pytest api/tests/test_contractor_dashboard_api.py
 pytest
 ```
 
+
 #barath-roshan
+
+---
+
+## Phase 17 — Road Operations
+
+### 1. Architectural Overview & Design
+
+Phase 17 implements the **Road Operations backend/API layer**, allowing Government Officers to publish, manage, activate, and complete municipal road operation notices—such as road closures, lane restrictions, maintenance detours, and hazard blocks. Citizens gain public read-only visibility into active and planned operations to understand what roads are affected, why, for how long, and what alternative route detours are available.
+
+```text
+Government Officer (UserRole.GOVERNMENT_OFFICER)
+             │
+             │ POST / PATCH / activate / complete / cancel
+             ▼
+FastAPI Government Router (/api/v1/government/road-operations)
+             │
+             ▼
+RoadOperationService (backend/services/road_operation_service.py)
+             │
+             ├───────────────────────┬────────────────────────┐
+             ▼                       ▼                        ▼
+RoadOperation Repository     RoadOperation StateMachine  RoadOperation Event Log
+(`road_operations` table)    (PLANNED → ACTIVE           (`road_operation_events`)
+                              → COMPLETED / CANCELLED)
+             │
+             ▼
+Public Read-Only Citizen Router (/api/v1/citizen/road-operations)
+             ▲
+             │ GET (Active & Planned Operations)
+             │
+Citizen (Public Read-Only)
+```
+
+### 2. Strict Business Rules & Security Boundaries
+
+1. **Government Mutation Authority:** Only authenticated users with `UserRole.GOVERNMENT_OFFICER` can create, update, activate, complete, or cancel road operations (`actor.require_role(UserRole.GOVERNMENT_OFFICER)`). Access attempts by `CITIZEN` or `CONTRACTOR` actors yield `403 Forbidden` (`UnauthorizedError`).
+2. **Citizen Read-Only Access:** Citizens and the general public have read-only access to view active (`ACTIVE`) and planned (`PLANNED`) road operations and structured alternative-route detour information without authentication requirements or mutation permissions.
+3. **Strict Lifecycle State Machine:** Status transitions follow `RoadOperationStateMachine` (`PLANNED → ACTIVE → COMPLETED` or `CANCELLED`). Direct transitions from `PLANNED` or `ACTIVE` to `COMPLETED` or `CANCELLED` are validated; completed or cancelled operations cannot be re-activated or edited. Invalid transitions raise `InvalidStateTransitionError` (HTTP 400).
+4. **Structured Alternative Route Detour Data:** Detour information is stored as structured attributes (`alternative_route_name`, `alternative_route_instructions`, `alternative_road_segment_id`, `alternative_route_distance_km`). Map generation, external map API calls, and live GPS routing are explicitly deferred to future phases.
+5. **Entity Linkage Integrity:** Road operations optionally link to existing `RoadSegment` (`road_segment_id`), `Grievance` (`grievance_id`), and `WorkOrder` (`work_order_id`). Invalid foreign key references raise `NotFoundError` (HTTP 404).
+6. **Immutable Audit Events:** Every road operation lifecycle event (creation, update, activation, completion, cancellation) writes an immutable record to the `road_operation_events` table recording actor ID, operation ID, event type, status transition, and notes.
+
+### 3. Database Entities & Schemas
+
+* **`RoadOperation`** (`road_operations` table): Main road operation record tracking `title`, `description`, `reason`, `operation_type` (`ROAD_CLOSURE`, `LANE_RESTRICTION`, `MAINTENANCE_WORK`, `DETOUR`, `HAZARD_BLOCK`), `status` (`PLANNED`, `ACTIVE`, `COMPLETED`, `CANCELLED`), start/end timestamps, detour info, creator officer ID, and optional grievance/work order links.
+* **`RoadOperationEvent`** (`road_operation_events` table): Audit history entity recording `operation_id`, `actor_id`, `event_type`, `old_status`, `new_status`, `notes`, and timestamp.
+
+### 4. Road Operations API Endpoints
+
+#### Government Officers:
+* `POST /api/v1/government/road-operations`: Create a new road operation notice.
+* `GET /api/v1/government/road-operations`: List road operations with filtering (`status`, `operation_type`, `road_segment_id`, `grievance_id`, `work_order_id`) and pagination.
+* `GET /api/v1/government/road-operations/{id}`: Retrieve full operation details including alternative route and audit history events.
+* `PATCH /api/v1/government/road-operations/{id}`: Update operation details (title, description, reason, detour info, timestamps).
+* `POST /api/v1/government/road-operations/{id}/activate`: Activate a planned operation (`PLANNED → ACTIVE`).
+* `POST /api/v1/government/road-operations/{id}/complete`: Mark an operation as completed (`ACTIVE → COMPLETED`).
+* `POST /api/v1/government/road-operations/{id}/cancel`: Cancel an operation (`PLANNED/ACTIVE → CANCELLED`).
+
+#### Citizen Public Access:
+* `GET /api/v1/citizen/road-operations`: List active and planned road operations visible to the public.
+* `GET /api/v1/citizen/road-operations/{id}`: View citizen-facing details of a specific road operation and detour information.
+
+### 5. Running Phase 17 Tests
+
+Execute the workspace test suite (277+ total passing tests across all modules):
+
+```bash
+# Run road operation service & unit tests
+pytest backend/tests/test_road_operation.py
+
+# Run road operation API integration tests
+pytest api/tests/test_road_operation_api.py
+
+# Run full project test suite
+pytest
+```
+
 
 
 
