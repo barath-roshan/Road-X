@@ -1231,6 +1231,102 @@ pytest api/tests/test_notification_api.py
 pytest
 ```
 
+---
+
+## Phase 19 — Citizen Chatbot + RAG
+
+### 1. Architectural Overview & Design
+
+Phase 19 introduces **Citizen Chatbot + RAG**, a grounded conversational assistant layer for RoadX citizens. The chatbot answers questions regarding:
+* Citizen's own road grievances and status progress.
+* Active/planned municipal road operations, closures, restrictions, and detour routes.
+* Approved municipal road maintenance FAQs, quality assurance rules, and platform guidance.
+
+The subsystem strictly employs **Retrieval-Augmented Generation (RAG)** so responses are strictly grounded in retrieved RoadX records and knowledge base chunks, preventing artificial hallucinations.
+
+```text
+Citizen User
+   │
+   ▼
+Chat API (/api/v1/citizen/chat/...)
+   │
+   ▼
+CitizenChatbotService (backend/services/chatbot_service.py)
+   │
+   ├── ContextBuilder (backend/chatbot/context_builder.py)
+   │     ├─► PostgreSQL DB Retrieval (grievances WHERE citizen_id == actor.user_id + RoadOps)
+   │     └─► KnowledgeRetriever (backend/chatbot/retriever.py)
+   │           ├─► DocumentChunker (backend/chatbot/chunker.py)
+   │           ├─► RoadXEmbeddingProvider (ComplaintEmbedder 300-D vectors)
+   │           └─► VectorStore (L2-normalized Cosine Similarity Index)
+   │
+   ▼
+LLMProvider (backend/chatbot/llm_provider.py)
+   ├─► MockLLMProvider (Deterministic offline/test grounded generator)
+   ├─► GroqLLMProvider / OpenAILLMProvider (Configurable external LLMs)
+   │
+   ▼
+Grounded Response & Persistent Chat History (`chat_conversations`, `chat_messages`)
+   │
+   ▼
+Citizen (Answer + Source Attribution Metadata)
+```
+
+### 2. Strict Scope & Security Boundaries
+
+1. **Strict Data Isolation:** Citizen context queries enforce `grievance.citizen_id == current_actor.user_id`. A citizen can never view, query, or infer another citizen's private grievances or chat history.
+2. **Read-Only Assistant Constraint:** The chatbot does **not** perform administrative actions. It cannot modify grievances, change status, assign contractors, create road operations, or dispatch notifications.
+3. **No Web Search / Live Browsing / Maps Navigation:** The assistant operates strictly over stored PostgreSQL records and local approved knowledge base documents (`data/knowledge/roadx_faq.json`).
+4. **Strict Grounding Rules:** If context is insufficient to answer a user prompt, the assistant explicitly states: *"I don't have enough information in RoadX records to answer that question."*
+5. **No Key Exposure or Leaks:** Vector store, LLM provider credentials, and stack traces are encapsulated safely behind structured FastAPI error handlers (`APIErrorResponse`).
+
+### 3. Key Components & Implementation
+
+* **Knowledge Document Chunker** (`backend/chatbot/chunker.py`): Splits municipal documentation into deterministic text chunks with metadata retention (`document_id`, `chunk_id`, `title`, `source`, `category`, `version`).
+* **Embedding Provider** (`backend/chatbot/embeddings.py`): Reuses the Phase 5/6 `ComplaintEmbedder` to generate 300-D float32 normalized vectors.
+* **Vector Store** (`backend/chatbot/vector_store.py`): Manages document chunks and normalized vectors, providing fast top-k cosine similarity search.
+* **Retrieval Service** (`backend/chatbot/retriever.py`): Ingests `data/knowledge/roadx_faq.json` and retrieves relevant RAG context for user queries.
+* **Context Builder** (`backend/chatbot/context_builder.py`): Combines PostgreSQL citizen account records and RAG vector store chunks into a unified hybrid context string.
+* **LLM Provider Abstraction** (`backend/chatbot/llm_provider.py`): Abstract `LLMProvider` interface supporting deterministic grounded fallback (`MockLLMProvider`) and external API providers (`GroqLLMProvider`, `OpenAILLMProvider`).
+* **Chat Repository** (`backend/repositories/chat_repository.py`): Handles CRUD operations for persistent chat sessions and messages.
+
+### 4. Database Schema (`alembic/versions/2026_10_09_0010-3c4d5e6f7a8b_add_chat_conversations_and_messages.py`)
+
+* **`ChatConversation`** (`chat_conversations` table): `id` (UUID PK), `citizen_id` (FK -> `users.id`), `title`, `created_at`, `updated_at`.
+* **`ChatMessage`** (`chat_messages` table): `id` (UUID PK), `conversation_id` (FK -> `chat_conversations.id`), `role` (`user`, `assistant`, `system`), `content` (Text), `sources_json` (Text), `created_at`.
+
+### 5. Chat API Endpoints (`/api/v1/citizen/chat`)
+
+* `POST /api/v1/citizen/chat/conversations`: Create a new conversation session for authenticated citizen.
+* `GET /api/v1/citizen/chat/conversations`: List active citizen's conversation sessions.
+* `GET /api/v1/citizen/chat/conversations/{conversation_id}`: Retrieve session details and full message history.
+* `POST /api/v1/citizen/chat/conversations/{conversation_id}/messages`: Submit user question, process hybrid RAG retrieval, generate grounded LLM answer, and return response with source metadata.
+
+### 6. Environment Configuration (`backend/config.py`)
+
+* `ROADX_LLM_PROVIDER`: LLM provider engine (`mock`, `groq`, `openai`). Default: `mock`.
+* `ROADX_LLM_MODEL`: Selected model identifier (e.g. `llama3-8b-8192` or `gpt-3.5-turbo`).
+* `ROADX_LLM_API_KEY`: External provider API key.
+* `ROADX_LLM_TEMPERATURE`: Generation temperature (default: `0.2`).
+* `ROADX_LLM_MAX_TOKENS`: Maximum tokens per response (default: `500`).
+* `ROADX_RAG_TOP_K`: Number of knowledge base chunks to retrieve (default: `3`).
+
+### 7. Running Phase 19 Tests
+
+Execute the workspace test suite (302 total passing tests across all modules):
+
+```bash
+# Run chatbot RAG component and service tests
+pytest backend/tests/test_chatbot_rag.py
+
+# Run citizen chat API integration tests
+pytest api/tests/test_chat_api.py
+
+# Run full project test suite
+pytest
+```
+
+
 
 
 

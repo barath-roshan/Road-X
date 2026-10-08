@@ -23,6 +23,11 @@ from backend.models.notification import (
     DeliveryStatus,
     NotificationType,
 )
+from backend.models.chat import (
+    ChatRole,
+    ChatConversation,
+    ChatMessage,
+)
 
 __all__ = [
     "Base",
@@ -50,5 +55,9 @@ __all__ = [
     "NotificationChannel",
     "DeliveryStatus",
     "NotificationType",
+    "ChatRole",
+    "ChatConversation",
+    "ChatMessage",
 ]
+
 

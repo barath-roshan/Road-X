@@ -68,3 +68,36 @@ class NotificationSettings:
 
 notification_settings = NotificationSettings()
 
+
+@dataclass
+class ChatbotSettings:
+    """Configuration container for RAG and Citizen Chatbot parameters."""
+
+    llm_provider: str = field(
+        default_factory=lambda: os.getenv("ROADX_LLM_PROVIDER", "mock").lower()
+    )
+    llm_model: str = field(
+        default_factory=lambda: os.getenv("ROADX_LLM_MODEL", "llama3-8b-8192")
+    )
+    llm_api_key: str | None = field(
+        default_factory=lambda: os.getenv("ROADX_LLM_API_KEY")
+    )
+    llm_temperature: float = field(
+        default_factory=lambda: float(os.getenv("ROADX_LLM_TEMPERATURE", "0.2"))
+    )
+    llm_max_tokens: int = field(
+        default_factory=lambda: int(os.getenv("ROADX_LLM_MAX_TOKENS", "500"))
+    )
+    embedding_dim: int = field(
+        default_factory=lambda: int(os.getenv("ROADX_RAG_EMBEDDING_DIM", "300"))
+    )
+    rag_top_k: int = field(
+        default_factory=lambda: int(os.getenv("ROADX_RAG_TOP_K", "3"))
+    )
+    rag_min_score: float = field(
+        default_factory=lambda: float(os.getenv("ROADX_RAG_MIN_SCORE", "0.05"))
+    )
+
+
+chatbot_settings = ChatbotSettings()
+

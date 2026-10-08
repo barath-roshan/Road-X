@@ -1,0 +1,42 @@
+[
+  {
+    "document_id": "doc_roadx_overview",
+    "title": "RoadX Platform Overview & Citizen Guide",
+    "source": "RoadX Municipal Operations",
+    "category": "Platform Guidance",
+    "version": "1.0",
+    "content": "RoadX is an intelligent road grievance management and failure prediction platform. Citizens can submit road-related grievances such as potholes, severe pavement distress, drainage failure, and road cracks. The system processes reports, calculates priority and severity using machine learning, and coordinates with government officers and maintenance contractors to complete road repairs efficiently."
+  },
+  {
+    "document_id": "doc_grievance_lifecycle",
+    "title": "Road Grievance Lifecycle and Workflow Statuses",
+    "source": "RoadX Municipal Operations",
+    "category": "Grievance FAQs",
+    "version": "1.0",
+    "content": "Citizen grievance reports progress through defined workflow statuses: 1. SUBMITTED: The grievance has been logged into RoadX. 2. REVIEWED: Government officers have evaluated the report and ML analysis. 3. APPROVED / ASSIGNED: The grievance is approved and a work order is assigned to an authorized contractor. 4. IN_PROGRESS: Contractor is executing road maintenance work. 5. PENDING_VERIFICATION: Contractor submitted work completion evidence for government inspection. 6. RESOLVED: Government officer verified the completed repair work and closed the grievance."
+  },
+  {
+    "document_id": "doc_road_operations_guide",
+    "title": "Road Operations, Restructuring, Closures & Alternative Routes",
+    "source": "Department of Transportation & Municipal Operations",
+    "category": "Road Operations",
+    "version": "1.0",
+    "content": "Government Officers publish public road operations when maintenance work, resurfacing, or structural repairs require temporary road closures or lane restrictions. Each published road operation specifies the affected road segment, operation type (Closure, Maintenance, Repair, Inspection), scheduled start and end dates, reason for restriction, and official alternative detour route instructions for motorists and citizens."
+  },
+  {
+    "document_id": "doc_verification_rework",
+    "title": "Contractor Verification and Rejection Rework Policy",
+    "source": "Municipal Infrastructure Quality Assurance",
+    "category": "Maintenance FAQs",
+    "version": "1.0",
+    "content": "Only an authorized Government Officer can perform final completion verification for road work. If work submitted by a contractor is unsatisfactory or incomplete, the government officer rejects the submission with specific rework feedback notes. The grievance status returns to IN_PROGRESS so the contractor can complete necessary corrections. Contractors cannot directly mark grievances as RESOLVED."
+  },
+  {
+    "document_id": "doc_citizen_support_faq",
+    "title": "Citizen Support FAQ & Escalation Process",
+    "source": "RoadX Customer Care",
+    "category": "Citizen FAQs",
+    "version": "1.0",
+    "content": "Citizens can attach photo evidence metadata to their submitted grievances at any time before final resolution. Citizens receive status notifications when their grievance is reviewed, assigned, updated by contractors, or verified by government officers. If you need to check your complaint progress, ask the RoadX Assistant for an update on your submitted complaints."
+  }
+]

@@ -60,8 +60,17 @@ import pytest
         "backend.repositories",
         "backend.services",
         "backend.schemas",
+        "backend.chatbot",
+        "backend.chatbot.chunker",
+        "backend.chatbot.embeddings",
+        "backend.chatbot.vector_store",
+        "backend.chatbot.retriever",
+        "backend.chatbot.context_builder",
+        "backend.chatbot.prompts",
+        "backend.chatbot.llm_provider",
     ],
 )
+
 def test_module_imports(module_name: str):
     """Ensure every declared package and submodule can be imported without syntax or runtime error."""
     mod = importlib.import_module(module_name)
