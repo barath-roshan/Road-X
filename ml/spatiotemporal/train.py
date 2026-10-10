@@ -29,6 +29,8 @@ from ml.common.logging_config import get_logger
 from ml.failure_prediction.config import failure_config
 from ml.failure_prediction.features import RoadFailureFeatureBuilder
 from ml.failure_prediction.preprocessing import RoadFailurePreprocessor
+from ml.monitoring.evaluator import CandidateModelEvaluator
+from ml.monitoring.tracker import MLflowTracker
 from ml.spatiotemporal.config import spatiotemporal_config
 from ml.spatiotemporal.dataset import SpatiotemporalDatasetBuilder
 from ml.spatiotemporal.model import SpatiotemporalFailureModel
@@ -204,6 +206,53 @@ def run_spatiotemporal_training(
     joblib.dump(bundle, model_save_path)
     logger.info("Saved spatiotemporal model artifact bundle to: %s", model_save_path)
 
+    # 6. Phase 21 Candidate Model Evaluation & Promotion Safeguard
+    evaluator = CandidateModelEvaluator()
+    eval_decision = evaluator.evaluate_candidate(
+        candidate_metrics=p20_metrics,
+        baseline_metrics=p2_metrics,
+        candidate_version=spatiotemporal_config.model_version,
+        baseline_version="v1.0_baseline",
+    )
+    logger.info("Phase 21 Model Promotion Decision: %s", eval_decision.decision_reason)
+
+    # 7. Phase 21 MLflow Experiment Tracking
+    tracker = MLflowTracker()
+    tracking_summary = tracker.log_experiment(
+        params={
+            "algorithm": "XGBoost + CalibratedClassifierCV",
+            "n_estimators": spatiotemporal_config.xgboost_params.get("n_estimators", 350),
+            "max_depth": spatiotemporal_config.xgboost_params.get("max_depth", 6),
+            "learning_rate": spatiotemporal_config.xgboost_params.get("learning_rate", 0.04),
+            "random_seed": 42,
+            "feature_count": len(feature_names),
+            "train_samples": len(train_df),
+            "test_samples": len(test_df),
+            "target": spatiotemporal_config.target_column,
+        },
+        metrics={
+            "candidate_f1": p20_metrics["f1_score"],
+            "candidate_roc_auc": p20_metrics["roc_auc"],
+            "candidate_precision": p20_metrics["precision"],
+            "candidate_recall": p20_metrics["recall"],
+            "candidate_pr_auc": p20_metrics["pr_auc"],
+            "baseline_f1": p2_metrics["f1_score"],
+            "baseline_roc_auc": p2_metrics["roc_auc"],
+        },
+        tags={
+            "phase": "Phase 20 / Phase 21",
+            "model_version": spatiotemporal_config.model_version,
+            "target": spatiotemporal_config.target_column,
+            "promotion_recommended": str(eval_decision.recommended_for_promotion),
+        },
+        artifacts={
+            "evaluation_decision": eval_decision.to_dict(),
+            "p2_metrics": p2_metrics,
+            "p20_metrics": p20_metrics,
+        },
+        run_name=f"spatiotemporal-{spatiotemporal_config.model_version}",
+    )
+
     # Save Metadata JSON
     metadata = {
         "model_name": spatiotemporal_config.model_name,
@@ -221,6 +270,8 @@ def run_spatiotemporal_training(
         },
         "metrics_p2_baseline": p2_metrics,
         "metrics_p20_spatiotemporal": p20_metrics,
+        "evaluation_decision": eval_decision.to_dict(),
+        "tracking_run_id": tracking_summary.get("run_id"),
     }
 
     metadata_path = artifacts_folder / "metadata.json"
@@ -233,6 +284,8 @@ def run_spatiotemporal_training(
         "metadata_file": str(metadata_path),
         "p2_metrics": p2_metrics,
         "p20_metrics": p20_metrics,
+        "evaluation_decision": eval_decision.to_dict(),
+        "tracking_run_id": tracking_summary.get("run_id"),
     }
 
 

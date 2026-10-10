@@ -3,12 +3,17 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
+from typing import Any, Dict, List, Optional
+import pandas as pd
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from api.config import api_settings
 from api.dependencies import get_ml_service, get_request_id
-from api.schemas.requests import MLAnalyzeRequest
+from api.schemas.requests import (
+    CandidateEvaluationRequest,
+    DriftAnalysisRequest,
+    MLAnalyzeRequest,
+)
 from api.schemas.responses import APIErrorResponse, MLAnalyzeResponse
 from api.service import (
     InferenceFailedError,
@@ -16,6 +21,11 @@ from api.service import (
     MLInferenceService,
     ModelNotReadyError,
 )
+from ml.monitoring.config import monitoring_config
+from ml.monitoring.drift import DriftAnalyzer
+from ml.monitoring.evaluator import CandidateModelEvaluator
+from ml.monitoring.telemetry import telemetry
+from ml.monitoring.tracker import MLflowTracker
 
 HTTP_422 = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
 
@@ -177,3 +187,91 @@ async def analyze_damage_image(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"code": e.code, "message": e.message, "request_id": request_id},
         ) from e
+
+
+@router.get(
+    "/ml/monitoring/telemetry",
+    summary="Get Operational Inference Telemetry",
+    description="Retrieve aggregated metrics on request counts, error rates, latencies, and model invocations.",
+    status_code=status.HTTP_200_OK,
+)
+def get_inference_telemetry() -> Dict[str, Any]:
+    """Return live operational telemetry summary."""
+    return telemetry.get_metrics()
+
+
+@router.get(
+    "/ml/monitoring/experiments",
+    summary="List MLflow Experiment History",
+    description="Retrieve recorded experiment tracking summaries from local/MLflow history.",
+    status_code=status.HTTP_200_OK,
+)
+def list_experiment_history() -> List[Dict[str, Any]]:
+    """Return recorded experiment training runs and metrics."""
+    tracker = MLflowTracker()
+    return tracker.get_experiment_history()
+
+
+@router.post(
+    "/ml/monitoring/drift",
+    summary="Analyze Feature and Data Drift",
+    description="Compute statistical drift (PSI and KS test) between reference baseline and monitored observations.",
+    status_code=status.HTTP_200_OK,
+)
+def analyze_feature_drift(payload: DriftAnalysisRequest) -> Dict[str, Any]:
+    """Execute statistical distribution drift detection."""
+    if not payload.current_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": "EMPTY_CURRENT_DATA", "message": "current_data list cannot be empty."},
+        )
+
+    curr_df = pd.DataFrame(payload.current_data)
+
+    if payload.reference_data:
+        ref_df = pd.DataFrame(payload.reference_data)
+    elif monitoring_config.reference_data_path.exists():
+        try:
+            ref_df = pd.read_csv(monitoring_config.reference_data_path)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail={"code": "REF_DATA_READ_ERROR", "message": f"Failed to load reference dataset: {e}"},
+            )
+    else:
+        return {
+            "timestamp": pd.Timestamp.utcnow().isoformat(),
+            "overall_drift_detected": False,
+            "overall_status": "NO_REFERENCE_DATA",
+            "features_analyzed": 0,
+            "features_with_drift": [],
+            "feature_results": {},
+            "schema_warnings": ["No reference dataset provided and no persisted baseline found."],
+            "notes": "Reference baseline is required to calculate distribution drift.",
+        }
+
+    analyzer = DriftAnalyzer()
+    report = analyzer.analyze(
+        reference_data=ref_df,
+        current_data=curr_df,
+        feature_columns=payload.features,
+    )
+    return report.to_dict()
+
+
+@router.post(
+    "/ml/monitoring/evaluate",
+    summary="Evaluate Candidate Model for Promotion",
+    description="Compare candidate model metrics against active baseline against acceptance thresholds.",
+    status_code=status.HTTP_200_OK,
+)
+def evaluate_candidate_model(payload: CandidateEvaluationRequest) -> Dict[str, Any]:
+    """Evaluate candidate model metrics against baseline."""
+    evaluator = CandidateModelEvaluator()
+    decision = evaluator.evaluate_candidate(
+        candidate_metrics=payload.candidate_metrics,
+        baseline_metrics=payload.baseline_metrics,
+        candidate_version=payload.candidate_version,
+        baseline_version=payload.baseline_version,
+    )
+    return decision.to_dict()

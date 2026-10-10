@@ -109,3 +109,41 @@ class MLAnalyzeRequest(BaseModel):
             existing_complaints=self.existing_complaints,
             enabled_stages=self.enabled_stages,
         )
+
+
+class DriftAnalysisRequest(BaseModel):
+    """Request payload for data and feature drift analysis."""
+
+    current_data: List[Dict[str, Any]] = Field(
+        ...,
+        description="Batch of current/incoming feature records observed during inference",
+    )
+    reference_data: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Optional reference baseline dataset. If omitted, uses default reference baseline if available.",
+    )
+    features: Optional[List[str]] = Field(
+        default=None,
+        description="Subset of feature columns to evaluate for distribution shift",
+    )
+
+
+class CandidateEvaluationRequest(BaseModel):
+    """Request payload for candidate model evaluation and promotion check."""
+
+    candidate_metrics: Dict[str, float] = Field(
+        ...,
+        description="Evaluation metrics for candidate model",
+    )
+    baseline_metrics: Dict[str, float] = Field(
+        ...,
+        description="Evaluation metrics for active baseline model",
+    )
+    candidate_version: str = Field(
+        default="v2.0_candidate",
+        description="Version identifier of candidate model",
+    )
+    baseline_version: str = Field(
+        default="v1.0_baseline",
+        description="Version identifier of active baseline model",
+    )

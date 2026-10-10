@@ -53,6 +53,12 @@ import pytest
         "ml.spatiotemporal.dataset",
         "ml.spatiotemporal.model",
         "ml.spatiotemporal.predict",
+        "ml.monitoring",
+        "ml.monitoring.config",
+        "ml.monitoring.tracker",
+        "ml.monitoring.evaluator",
+        "ml.monitoring.telemetry",
+        "ml.monitoring.drift",
         "api",
 
         "api.config",

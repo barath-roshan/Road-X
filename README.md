@@ -1404,7 +1404,90 @@ python -m ml.spatiotemporal.train
 # Run spatiotemporal unit & leakage tests
 pytest ml/spatiotemporal/tests/test_spatiotemporal.py
 
-# Run full project test suite (315 tests passing)
+# Run full project test suite (343 tests passing)
+pytest
+```
+
+---
+
+## Phase 21 — MLflow Experiment Tracking & Model Monitoring
+
+Phase 21 introduces a modular experiment-tracking, model evaluation safeguard, operational telemetry, and feature drift detection subsystem for RoadX models.
+
+> [!IMPORTANT]
+> **Synthetic Data Disclaimer**: The Phase 20 spatiotemporal model and previous training phases rely on synthetic development data. Passing automated evaluation criteria or offline drift tests must not be construed as real-world municipal deployment readiness without verified empirical field validation.
+
+### 1. Architecture Overview
+
+```
+                      ┌──────────────────────────────────────────────┐
+                      │             RoadX Application               │
+                      └──────────────────────┬───────────────────────┘
+                                             │
+             ┌───────────────────────────────┼───────────────────────────────┐
+             │ Training / Retraining         │ API Service Inference        │ Offline Verification
+             ▼                               ▼                               ▼
+    ┌──────────────────┐           ┌──────────────────┐            ┌──────────────────┐
+    │  MLflowTracker   │           │InferenceTelemetry│            │  DriftAnalyzer   │
+    │  & Evaluator     │           │ (Thread-Safe)    │            │ (PSI & KS Test)  │
+    └────────┬─────────┘           └────────┬─────────┘            └────────┬─────────┘
+             │                              │                               │
+    ┌────────▼─────────┐           ┌────────▼─────────┐            ┌────────▼─────────┐
+    │ MLflow Backend / │           │ Aggregated Ops   │            │ Feature Drift    │
+    │ Local JSON       │           │ Latency & Counts │            │ Reports & Alerts │
+    └──────────────────┘           └──────────────────┘            └──────────────────┘
+```
+
+### 2. Modules & Core Capabilities
+
+1. **Experiment Tracking (`ml/monitoring/tracker.py`)**:
+   - `MLflowTracker`: Logs run parameters, classification/regression metrics, tags, and artifact metadata.
+   - **Safe Offline Fallback**: If MLflow server is unavailable or disabled (`ROADX_MLFLOW_ENABLED=false`), experiments automatically fall back to local structured JSON persistence (`models/monitoring/experiment_history.json`).
+
+2. **Candidate Evaluation & Promotion Safeguards (`ml/monitoring/evaluator.py`)**:
+   - `CandidateModelEvaluator`: Enforces hard acceptance thresholds (F1 $\ge 0.75$, ROC-AUC $\ge 0.85$, Precision $\ge 0.75$, Recall $\ge 0.70$) and verifies no regression vs baseline active model.
+   - **Safe Promotion Gate**: Candidate models failing acceptance criteria are rejected and the active baseline model is preserved.
+
+3. **Inference Operational Telemetry (`ml/monitoring/telemetry.py`)**:
+   - `InferenceTelemetry`: Thread-safe in-memory ring-buffer tracking request counts, success/failure counts, validation error counts, and latency percentiles (min, avg, p50, p95, p99, max).
+   - **Zero Inference Disruption**: Telemetry failures are isolated and never crash inference.
+   - **Privacy Safeguard**: High-cardinality citizen IDs, complaint text, request IDs, and raw image blobs are strictly excluded from metric dimensions.
+
+4. **Statistical Feature Drift Detection (`ml/monitoring/drift.py`)**:
+   - `DriftAnalyzer`: Computes Population Stability Index (PSI) and Kolmogorov-Smirnov (KS) tests between baseline reference distributions and incoming inference batches.
+   - **Status Classifications**: `NO_DRIFT` (PSI < 0.10, KS $p \ge 0.05$), `MODERATE_DRIFT` ($0.10 \le \text{PSI} < 0.25$), `HIGH_DRIFT` ($\text{PSI} \ge 0.25$), or `INSUFFICIENT_DATA` ($n < 15$).
+   - Handles numerical/categorical features, null-value ratios, and schema mismatches.
+
+5. **Prediction Quality Evaluation (`PredictionQualityMonitor`)**:
+   - Explicitly differentiates operational metrics from ground-truth verification.
+   - Flags quality monitoring as `UNAVAILABLE_NO_GROUND_TRUTH` when verified field verification labels are absent, preventing fabricated accuracy scores.
+
+### 3. Configuration Variables
+
+| Environment Variable | Default Value | Description |
+| :--- | :--- | :--- |
+| `ROADX_MLFLOW_ENABLED` | `true` | Enable/disable MLflow tracking |
+| `ROADX_MLFLOW_TRACKING_URI` | `file:///<models_dir>/mlruns` | MLflow tracking server URI or local filesystem path |
+| `ROADX_MLFLOW_EXPERIMENT` | `RoadX_Failure_Prediction` | Active MLflow experiment name |
+| `ROADX_MLFLOW_REGISTERED_MODEL` | `RoadX_Spatiotemporal_Model` | Registered model name for registry backends |
+
+### 4. FastAPI Monitoring Endpoints
+
+- `GET /api/v1/ml/monitoring/telemetry`: Retrieve aggregated operational metrics, latencies, and model invocations.
+- `GET /api/v1/ml/monitoring/experiments`: List recorded experiment runs from local/MLflow tracking.
+- `POST /api/v1/ml/monitoring/drift`: Analyze incoming feature distributions against baseline reference data.
+- `POST /api/v1/ml/monitoring/evaluate`: Evaluate candidate model performance against baseline criteria.
+
+### 5. Running Phase 21 Training & Tests
+
+```bash
+# Run spatiotemporal training with MLflow tracking and candidate evaluation
+python -m ml.spatiotemporal.train
+
+# Run Phase 21 monitoring test suite (21 tests)
+pytest ml/monitoring/tests/test_monitoring.py
+
+# Run full project test suite (343 tests passing)
 pytest
 ```
 

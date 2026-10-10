@@ -102,7 +102,18 @@ class MLInferenceService:
         Returns:
             MLAnalyzeResponse output.
         """
+        start_t = time.perf_counter()
         if not self.is_ready or self.pipeline is None:
+            try:
+                from ml.monitoring.telemetry import telemetry
+                telemetry.record_inference(
+                    latency_ms=0.0,
+                    success=False,
+                    model_id="unified_pipeline",
+                    model_version="v1.0",
+                )
+            except Exception:
+                pass
             logger.warning("[%s] Rejecting request: ML pipeline is not ready.", request_id)
             raise ModelNotReadyError("The ML pipeline is not ready.")
 
@@ -117,13 +128,42 @@ class MLInferenceService:
 
         try:
             result: UnifiedPipelineResult = self.pipeline.run(pipeline_input)
+            latency_ms = (time.perf_counter() - start_t) * 1000.0
             
             # Map UnifiedPipelineResult into MLAnalyzeResponse
             response_dict = result.model_dump()
             response_dict["request_id"] = request_id
+
+            try:
+                from ml.monitoring.telemetry import telemetry
+                pred_label = None
+                if result.maintenance_priority and getattr(result.maintenance_priority, "priority_tier", None):
+                    pred_label = str(result.maintenance_priority.priority_tier)
+                telemetry.record_inference(
+                    latency_ms=latency_ms,
+                    success=True,
+                    model_id="unified_pipeline",
+                    model_version="v1.0",
+                    prediction_label=pred_label,
+                )
+            except Exception:
+                pass
+
             return MLAnalyzeResponse(**response_dict)
 
         except Exception as e:
+            latency_ms = (time.perf_counter() - start_t) * 1000.0
+            try:
+                from ml.monitoring.telemetry import telemetry
+                telemetry.record_inference(
+                    latency_ms=latency_ms,
+                    success=False,
+                    model_id="unified_pipeline",
+                    model_version="v1.0",
+                    is_validation_failure=isinstance(e, InvalidInputError),
+                )
+            except Exception:
+                pass
             logger.error("[%s] Pipeline execution error: %s", request_id, e, exc_info=True)
             raise InferenceFailedError(f"ML pipeline execution failed: {e}") from e
 
@@ -145,11 +185,33 @@ class MLInferenceService:
         Returns:
             MLAnalyzeResponse containing damage detection results.
         """
+        start_t = time.perf_counter()
         if not self.is_ready or self.pipeline is None:
+            try:
+                from ml.monitoring.telemetry import telemetry
+                telemetry.record_inference(
+                    latency_ms=0.0,
+                    success=False,
+                    model_id="damage_detection",
+                    model_version="v1.0",
+                )
+            except Exception:
+                pass
             logger.warning("[%s] Rejecting image request: ML pipeline is not ready.", request_id)
             raise ModelNotReadyError("The ML pipeline is not ready.")
 
         if not image_bytes:
+            try:
+                from ml.monitoring.telemetry import telemetry
+                telemetry.record_inference(
+                    latency_ms=0.0,
+                    success=False,
+                    model_id="damage_detection",
+                    model_version="v1.0",
+                    is_validation_failure=True,
+                )
+            except Exception:
+                pass
             raise InvalidInputError("Uploaded image file is empty.")
 
         # Validate image readable by PIL
@@ -159,6 +221,17 @@ class MLInferenceService:
             # Re-open after verify() as verify alters image stream
             pil_image = Image.open(io.BytesIO(image_bytes))
         except Exception as e:
+            try:
+                from ml.monitoring.telemetry import telemetry
+                telemetry.record_inference(
+                    latency_ms=0.0,
+                    success=False,
+                    model_id="damage_detection",
+                    model_version="v1.0",
+                    is_validation_failure=True,
+                )
+            except Exception:
+                pass
             logger.warning("[%s] Corrupted or unreadable image uploaded (%s): %s", request_id, filename, e)
             raise InvalidInputError(f"Uploaded file '{filename}' is not a valid or readable image.") from e
 
@@ -176,9 +249,33 @@ class MLInferenceService:
 
         try:
             result = self.pipeline.run(pipeline_input)
+            latency_ms = (time.perf_counter() - start_t) * 1000.0
             response_dict = result.model_dump()
             response_dict["request_id"] = request_id
+
+            try:
+                from ml.monitoring.telemetry import telemetry
+                telemetry.record_inference(
+                    latency_ms=latency_ms,
+                    success=True,
+                    model_id="damage_detection",
+                    model_version="v1.0",
+                )
+            except Exception:
+                pass
+
             return MLAnalyzeResponse(**response_dict)
         except Exception as e:
+            latency_ms = (time.perf_counter() - start_t) * 1000.0
+            try:
+                from ml.monitoring.telemetry import telemetry
+                telemetry.record_inference(
+                    latency_ms=latency_ms,
+                    success=False,
+                    model_id="damage_detection",
+                    model_version="v1.0",
+                )
+            except Exception:
+                pass
             logger.error("[%s] Image analysis pipeline error: %s", request_id, e, exc_info=True)
             raise InferenceFailedError(f"Image analysis pipeline failed: {e}") from e
