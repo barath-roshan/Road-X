@@ -1326,6 +1326,89 @@ pytest api/tests/test_chat_api.py
 pytest
 ```
 
+---
+
+## Phase 20 — Advanced Spatiotemporal ML
+
+### 1. Architectural Overview & Design
+
+Phase 20 introduces **Advanced Spatiotemporal ML**, extending the Phase 2 road failure prediction baseline with spatial coordinates, geographic neighbor clustering, seasonal calendar cycles, and historical segment degradation trends.
+
+```text
+Raw Observation Data (Segment ID, Date, Physical Features)
+                        │
+                        ▼
+         SpatiotemporalDatasetBuilder (ml/spatiotemporal/dataset.py)
+                        │
+        ┌───────────────┼───────────────┐
+        ▼               ▼               ▼
+Phase 2 Features  Spatial Features  Temporal Features
+(traffic_stress, (dist_to_center,  (month, season,
+ damage_idx, etc) spatial_cluster,   monsoon, rolling
+                 neighbor_quality,  quality_mean,
+                 neighbor_pothole)  quality_decay)
+        │               │               │
+        └───────────────┼───────────────┘
+                        │
+                        ▼
+       Chronological Split (80% Train / 20% Test)
+                        │
+                        ▼
+   SpatiotemporalFailureModel (XGBoost + Calibrated CV)
+                        │
+                        ▼
+  Failure Probability (0.0-1.0) & Risk Level (LOW-CRITICAL)
+```
+
+### 2. Feature Engineering & Leakage Prevention
+
+1. **Spatial Features (`ml/spatiotemporal/spatial.py`)**:
+   - `dist_to_center_km`: Great Circle (Haversine) distance from segment coordinates to municipal city center.
+   - `spatial_cluster`: Spatial grid binning assignment.
+   - `neighbor_quality_avg`, `neighbor_pothole_avg`, `neighbor_failure_rate`: Proximity statistics over surrounding road segments within a 5 km radius.
+2. **Temporal & Historical Features (`ml/spatiotemporal/temporal.py`)**:
+   - `month`, `day_of_week`, `season`, `is_monsoon`, `day_of_year_sin`, `day_of_year_cos`.
+   - `quality_rolling_3obs_mean`: Segment-aware 3-observation rolling mean of pavement quality.
+   - `quality_decay_rate`: Rate of quality degradation relative to previous observation.
+   - `pothole_trend_3obs`: 3-observation rolling change in pothole density.
+3. **Strict Leakage Prevention**:
+   - All spatial neighbor and historical rolling statistics at timestamp $t$ are derived exclusively using records up to timestamp $t$ ($\le t$). Future records ($t+1$) are strictly excluded. Verified via `test_temporal_leakage_prevention`.
+
+### 3. Progressive Model Evaluation (Phase 2 Baseline vs Phase 20 Spatiotemporal)
+
+Evaluated on identical chronological test split (20% future observations):
+
+| Metric | Phase 2 Baseline | Phase 20 Spatiotemporal Model | Improvement |
+| :--- | :---: | :---: | :---: |
+| **Accuracy** | 0.9417 | **0.9633** | +2.16% |
+| **Precision** | 0.8878 | **0.9388** | +5.10% |
+| **Recall** | 0.7768 | **0.8214** | +4.46% |
+| **F1-Score** | 0.8286 | **0.8762** | +4.76% |
+| **ROC-AUC** | 0.9619 | **0.9785** | +1.66% |
+| **PR-AUC** | 0.8841 | **0.9329** | +4.88% |
+| **MAE** | 0.0886 | **0.0634** | -28.4% error reduction |
+| **RMSE** | 0.2091 | **0.1694** | -19.0% error reduction |
+| **$R^2$ Score** | 0.5340 | **0.6934** | +15.94 pp |
+
+### 4. Artifact Serialization & Model Persistence
+
+- Artifact Joblib: `models/spatiotemporal/spatiotemporal_model_artifact.joblib`
+- Metadata JSON: `models/spatiotemporal/metadata.json`
+
+### 5. Running Phase 20 Training & Tests
+
+```bash
+# Run training pipeline and model comparison
+python -m ml.spatiotemporal.train
+
+# Run spatiotemporal unit & leakage tests
+pytest ml/spatiotemporal/tests/test_spatiotemporal.py
+
+# Run full project test suite (315 tests passing)
+pytest
+```
+
+
 
 
 
