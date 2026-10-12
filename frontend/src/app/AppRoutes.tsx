@@ -8,7 +8,7 @@ import { LoginPage } from '../pages/LoginPage'
 import { UnauthorizedPage } from '../pages/UnauthorizedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { CitizenDashboardPlaceholder } from '../pages/CitizenDashboardPlaceholder'
-import { GovernmentDashboardPlaceholder } from '../pages/GovernmentDashboardPlaceholder'
+import { GovernmentDashboardPage } from '../pages/GovernmentDashboardPage'
 import { ContractorDashboardPlaceholder } from '../pages/ContractorDashboardPlaceholder'
 
 export const AppRoutes: React.FC = () => {
@@ -31,7 +31,7 @@ export const AppRoutes: React.FC = () => {
 
         {/* Government Officer Dashboard Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={['GOVERNMENT_OFFICER']} />}>
-          <Route path="/government/*" element={<GovernmentDashboardPlaceholder />} />
+          <Route path="/government/*" element={<GovernmentDashboardPage />} />
         </Route>
 
         {/* Contractor Portal Protected Route */}

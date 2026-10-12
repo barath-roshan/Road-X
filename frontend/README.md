@@ -94,29 +94,13 @@ cp .env.example .env.local
 |---|---|---|
 | `VITE_API_BASE_URL` | `http://127.0.0.1:8000` | Target URL for the running RoadX FastAPI backend |
 
-> **Security Note:** All `VITE_*` variables are bundled into the public client application. Never place database credentials, private API keys, or server secrets in client environment files.
-
-### 3. Run Development Server
-```bash
-npm run dev
-```
-The application will launch at: [http://127.0.0.1:3000](http://127.0.0.1:3000)
-
-### 4. Build for Production
-```bash
-npm run build
-```
-Generates optimized, minified production assets in `frontend/dist/`.
-
----
-
-## 4. Testing & Type-Checking Commands
+> **Security Note:** All `VITE_*` variables are bundled into the public client application. Never place databas### 4. Testing & Type-Checking Commands
 
 | Command | Action |
 |---|---|
-| `npm test` | Runs the Vitest test suite (`16 passed, 0 failed`) |
-| `npm run typecheck` | Validates TypeScript types across the project with zero emissions |
-| `npm run build` | Compiles TypeScript and builds the production bundle |
+| `npm test` | Runs the full Vitest test suite (`28 passed, 0 failed`) |
+| `npm run typecheck` | Validates TypeScript types across the project with zero errors |
+| `npm run build` | Compiles TypeScript and builds the production bundle (`dist/`) |
 
 ---
 
@@ -128,26 +112,76 @@ The existing RoadX FastAPI backend enforces role-based access control through re
 - `X-Actor-Role`: The governance role: `CITIZEN`, `GOVERNMENT_OFFICER`, or `CONTRACTOR`.
 
 ### Frontend Implementation
-1. **Centralized Header Injection:** [`apiClient.ts`](src/services/apiClient.ts) automatically attaches `X-Actor-User-ID` and `X-Actor-Role` to all outgoing API requests from the active session.
+1. **Centralized Header Injection:** [`apiClient.ts`](src/services/apiClient.ts) automatically attaches `X-Actor-User-ID` and `X-Actor-Role` to all outgoing API requests from the active session. Supports `get`, `post`, `put`, `patch`, `delete`, and `upload`.
 2. **Session Storage:** Actor credentials are stored in browser `sessionStorage` (isolated to the tab session and cleared upon explicit logout). **Passwords are never stored in browser storage.**
 3. **Role Enforcement:** [`ProtectedRoute.tsx`](src/app/ProtectedRoute.tsx) guards client-side routes according to `allowedRoles`. When a citizen attempts to visit `/government`, they are redirected to `/unauthorized`.
 4. **Authoritative Backend Protection:** Frontend route guards are purely for UX; the FastAPI backend strictly validates `actor.require_role()` on every protected API endpoint and returns HTTP 403 `UNAUTHORIZED_ACCESS` if role boundaries are violated.
 
-### Known Backend Contract Gaps & Security Limitations
-- **Header-Based Identity in Development:** In the current phase, user identity is communicated via HTTP headers without a cryptographically signed token (JWT) or server-set `HttpOnly` session cookie.
-- **No Native `/auth/login` Endpoint:** The backend lacks a dedicated password-verification endpoint. In accordance with Phase 23 specifications, no fake JWT or unprompted backend endpoints were created; authentication directly integrates with the real `get_current_actor` header contract.
-- **Future Production Recommendation:** Implement secure server-set `HttpOnly`, `SameSite=Lax` session cookies with signed sessions or OAuth2/OIDC for production municipal deployments.
+---
+
+## 6. Phase 24 — Government Officer Dashboard
+
+The Government Officer Dashboard provides authorized municipal personnel with administrative control over the grievance lifecycle, ML predictive insights, contractor dispatch, and completion sign-off:
+
+### Dashboard Modules & Sub-Tabs
+
+1. **Executive Overview (`/government?tab=overview`):**
+   - Integrates with `GET /api/v1/government/dashboard/overview`.
+   - Real-time aggregate KPI cards: Total Grievances, Pending Officer Reviews, In-Progress Work Orders, Active Contractors.
+   - Pending Verifications Callout: Actionable banner directing officers to pending work order reviews.
+   - Detailed breakdowns: Grievance lifecycle stage distribution, ML Decision Support priority tiers (Critical, High, Medium, Low), Damage severity distribution, and Work order lifecycle counts.
+
+2. **Grievance Management (`/government?tab=grievances`):**
+   - Integrates with `GET /api/v1/government/dashboard/grievances`.
+   - Comprehensive filter toolbar: Search (keywords across description and road name), lifecycle status, category, ML priority, and ML damage severity.
+   - Grievance Case Inspection Modal (`GET /api/v1/government/dashboard/grievances/{id}`):
+     - Complete citizen report metadata and road segment geo-coordinates.
+     - Visual evidence viewer displaying attached photographs and file metadata.
+     - ML Decision Support Card: Failure risk probability, detected damage confidence, damage severity rating, estimated time-to-failure (days), and ML justification rationale reasons.
+     - Chronological workflow audit timeline (`timeline`).
+     - Review Decision Form: Submit `ACCEPT` (transitions to `UNDER_REVIEW`) or `REJECT` (requires mandatory rejection reason).
+     - Work Order Commissioning Form: Specify title, engineering instructions, priority tier, and assign a contractor from the municipal contractor registry.
+
+3. **Maintenance Priority Queue (`/government?tab=priority-queue`):**
+   - Integrates with `GET /api/v1/government/dashboard/priority-queue`.
+   - Ranked queue sorted by the Phase 8 ML Maintenance Priority score (0–100).
+   - Filter by minimum priority tier (`CRITICAL`, `HIGH`, `MEDIUM`, `LOW`).
+   - Displays priority score badge, road segment, damage category, failure risk, estimated days remaining, and machine learning rationale reason tags.
+   - Quick action to inspect case and dispatch repairs directly.
+
+4. **Work Order Monitoring (`/government?tab=work-orders`):**
+   - Integrates with `GET /api/v1/government/dashboard/work-orders`.
+   - Filter by work order status (`OPEN`, `ASSIGNED`, `IN_PROGRESS`, `PENDING_VERIFICATION`, `COMPLETED`, `CANCELLED`) and priority.
+   - Displays repair title, road segment, assigned contractor name, priority pill, and progress percentage bars (0–100%).
+
+5. **Completion Verification Queue (`/government?tab=verifications`):**
+   - Integrates with `GET /api/v1/government/dashboard/verification-queue` and `POST /api/v1/government/work-orders/{id}/verify`.
+   - **Exclusive Resolution Authority:** Enforces the governance rule that only a government officer `APPROVE` decision can officially transition a citizen grievance to `RESOLVED` and mark a work order `COMPLETED`.
+   - Displays submitted completion evidence, contractor completion notes, and submission timestamps.
+   - Sign-off Actions:
+     - **Approve Completion:** Officially closes the work order and resolves the grievance.
+     - **Reject & Request Rework:** Requires officer notes/rework instructions and reverts work order and grievance back to `IN_PROGRESS`.
+
+6. **Contractor Monitoring (`/government?tab=contractors`):**
+   - Integrates with `GET /api/v1/government/dashboard/contractors`.
+   - Read-only summary cards and audit table showing contractor contact details, active jobs, pending verifications, completed jobs, and average progress percentage across assignments.
+
+7. **Road Operations & Closures (`/government?tab=road-operations`):**
+   - Integrates with `GET /api/v1/government/road-operations`, `POST /api/v1/government/road-operations`, and lifecycle transition endpoints (`activate`, `complete`, `cancel`).
+   - Filter by status (`PLANNED`, `ACTIVE`, `COMPLETED`, `CANCELLED`) and operation type (`ROAD_CLOSURE`, `LANE_RESTRICTION`, `MAINTENANCE_WORK`, `DETOUR`, `HAZARD_BLOCK`).
+   - Modal to publish road operations with start/end schedules, detour bypass route names, and traffic instructions.
+   - Officer action controls: Activate closure (`PLANNED` → `ACTIVE`), Mark completed (`ACTIVE` → `COMPLETED`), or Cancel operation.
 
 ---
 
-## 6. Implemented Routes
+## 7. Implemented Routes
 
 | Route | Access | Component / Description |
 |---|---|---|
 | `/` | Public | Home landing page with platform overview and portal switcher |
 | `/login` | Public | Authentication page with role tabs and demo presets |
 | `/unauthorized` | Authenticated | HTTP 403 Forbidden explanation with return links |
-| `/citizen/*` | Protected (`CITIZEN`) | Citizen Platform (Phase 24 placeholder) |
-| `/government/*` | Protected (`GOVERNMENT_OFFICER`) | Government Operations Dashboard (Phase 24 placeholder) |
-| `/contractor/*` | Protected (`CONTRACTOR`) | Contractor Portal (Phase 24 placeholder) |
+| `/citizen/*` | Protected (`CITIZEN`) | Citizen Platform (Phase 25 placeholder) |
+| `/government/*` | Protected (`GOVERNMENT_OFFICER`) | Government Officer Portal (Phase 24 full implementation) |
+| `/contractor/*` | Protected (`CONTRACTOR`) | Contractor Portal (Phase 26 placeholder) |
 | `*` | Public | 404 Not Found fallback |

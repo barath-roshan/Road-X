@@ -194,6 +194,86 @@ class APIClient {
     }
   }
 
+  public async patch<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
+    const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`
+    const headers = this.buildHeaders(options)
+
+    try {
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: options?.signal,
+      })
+      return await this.handleResponse<T>(response)
+    } catch (err: unknown) {
+      if (err instanceof APIClientError) {
+        throw err
+      }
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new APIClientError('Request was aborted.', 'ABORT_ERROR', 0)
+      }
+      throw new APIClientError(
+        'Unable to reach RoadX service. Please check your network connection.',
+        'NETWORK_ERROR',
+        0
+      )
+    }
+  }
+
+  public async put<T>(path: string, body?: unknown, options?: RequestOptions): Promise<T> {
+    const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`
+    const headers = this.buildHeaders(options)
+
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers,
+        body: body !== undefined ? JSON.stringify(body) : undefined,
+        signal: options?.signal,
+      })
+      return await this.handleResponse<T>(response)
+    } catch (err: unknown) {
+      if (err instanceof APIClientError) {
+        throw err
+      }
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new APIClientError('Request was aborted.', 'ABORT_ERROR', 0)
+      }
+      throw new APIClientError(
+        'Unable to reach RoadX service. Please check your network connection.',
+        'NETWORK_ERROR',
+        0
+      )
+    }
+  }
+
+  public async delete<T>(path: string, options?: RequestOptions): Promise<T> {
+    const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`
+    const headers = this.buildHeaders(options)
+
+    try {
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers,
+        signal: options?.signal,
+      })
+      return await this.handleResponse<T>(response)
+    } catch (err: unknown) {
+      if (err instanceof APIClientError) {
+        throw err
+      }
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        throw new APIClientError('Request was aborted.', 'ABORT_ERROR', 0)
+      }
+      throw new APIClientError(
+        'Unable to reach RoadX service. Please check your network connection.',
+        'NETWORK_ERROR',
+        0
+      )
+    }
+  }
+
   public async upload<T>(path: string, formData: FormData, options?: RequestOptions): Promise<T> {
     const url = `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`
     const headers = this.buildHeaders(options, true)

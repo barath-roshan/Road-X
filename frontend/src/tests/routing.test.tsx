@@ -73,7 +73,7 @@ describe('Role-Aware Routing & Protected Route Enforcement', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByRole('heading', { name: /government operations dashboard/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /government officer portal/i })).toBeInTheDocument()
   })
 
   it('renders NotFoundPage when navigating to nonexistent route', () => {
