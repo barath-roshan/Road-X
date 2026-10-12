@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from api.config import api_settings
+from api.config import api_settings, validate_startup_configuration
 from api.routes import (
     health_router,
     ml_router,
@@ -38,6 +38,11 @@ HTTP_422 = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Lifespan context manager handling application startup and shutdown tasks."""
     logger.info("Starting up %s (version %s)...", api_settings.app_name, api_settings.version)
+
+    # Audit startup configuration for security and readiness
+    config_warnings = validate_startup_configuration()
+    for w in config_warnings:
+        logger.warning("[config-audit] %s", w)
     
     # Initialize unified ML pipeline singleton on startup
     service = MLInferenceService()

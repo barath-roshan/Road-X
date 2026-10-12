@@ -1,0 +1,50 @@
+# Git and version control
+.git
+.gitignore
+.gitattributes
+
+# Environment and secrets (CRITICAL: Never bake secrets into image)
+.env
+.env.*
+*.env
+!.env.example
+
+# Python bytecode and build artifacts
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.egg-info
+dist/
+build/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# Test caches and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor and IDE metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local databases and runtime data
+data/roadx.db
+data/*.db
+data/external/*
+data/processed/*
+
+# Runtime logs
+logs/
+*.log
+
+# MLflow ephemeral tracking cache
+models/mlruns/
+mlruns/

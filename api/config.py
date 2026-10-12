@@ -43,3 +43,52 @@ class APISettings:
 
 
 api_settings = APISettings()
+
+
+def validate_startup_configuration() -> List[str]:
+    """Audit startup configuration for production readiness and security guidelines.
+
+    Returns:
+        List of warning/advisory messages. Never raises fatal errors or leaks secrets.
+    """
+    warnings: List[str] = []
+
+    # 1. CORS audit
+    if "*" in api_settings.cors_allowed_origins:
+        warnings.append("CORS_ALLOWED_ORIGINS contains wildcard (*). Restrict to specific domains in production.")
+
+    # 2. Database audit
+    try:
+        from backend.config import db_settings
+        if api_settings.env == "production" and db_settings.is_sqlite:
+            warnings.append(
+                "ROADX_ENV is set to production but DATABASE_URL is SQLite. "
+                "PostgreSQL is strongly recommended for production deployments."
+            )
+    except Exception:
+        pass
+
+    # 3. Notification & Twilio audit
+    try:
+        from backend.config import notification_settings
+        if notification_settings.twilio_enabled:
+            if not notification_settings.twilio_account_sid or not notification_settings.twilio_auth_token:
+                warnings.append(
+                    "TWILIO_ENABLED is true but TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN is missing. "
+                    "SMS delivery will fail."
+                )
+    except Exception:
+        pass
+
+    # 4. LLM provider audit
+    try:
+        from backend.config import chatbot_settings
+        if chatbot_settings.llm_provider != "mock" and not chatbot_settings.llm_api_key:
+            warnings.append(
+                f"ROADX_LLM_PROVIDER is set to '{chatbot_settings.llm_provider}' but ROADX_LLM_API_KEY is unset. "
+                "Chatbot will fall back to offline responses."
+            )
+    except Exception:
+        pass
+
+    return warnings

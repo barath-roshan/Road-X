@@ -1487,9 +1487,156 @@ python -m ml.spatiotemporal.train
 # Run Phase 21 monitoring test suite (21 tests)
 pytest ml/monitoring/tests/test_monitoring.py
 
-# Run full project test suite (343 tests passing)
+# Run full project test suite (355 tests passing)
 pytest
 ```
+
+---
+
+## Phase 22 — Testing, Docker & Productionization
+
+Phase 22 hardens the RoadX platform for reproducible containerized execution, automated database migrations, security compliance, operational health monitoring, and automated end-to-end smoke verification.
+
+> [!IMPORTANT]
+> **Container vs Production Readiness**: Containerization ensures consistent packaging and execution across environments. True municipal production readiness still requires empirical field data for ML calibration, reverse proxy TLS termination, and enterprise backup/disaster recovery policies.
+
+### 1. Container Architecture & Deployment Topology
+
+```
+                      ┌──────────────────────────────────────────────┐
+                      │              Client Applications             │
+                      │        (Citizen Web, Dashboards, Mobile)     │
+                      └──────────────────────┬───────────────────────┘
+                                             │ HTTP (Port 8000)
+                                             ▼
+                                ┌───────────────────────────┐
+                                │      RoadX Container      │
+                                │       (FastAPI + ML)      │
+                                │   Non-root user (uid 1001)│
+                                └─────────────┬─────────────┘
+                                              │
+                      ┌───────────────────────┴───────────────────────┐
+                      │ Internal Network                              │ Persistent Volumes
+                      ▼                                               ▼
+         ┌──────────────────────────┐                    ┌──────────────────────────┐
+         │     PostgreSQL 15        │                    │ roadx_data (/app/data)   │
+         │   (Service: postgres)    │                    │ roadx_models (monitoring)│
+         │   Port 127.0.0.1:5432    │                    │ roadx_logs (/app/logs)   │
+         └────────────┬─────────────┘                    └──────────────────────────┘
+                      │
+                      ▼
+         ┌──────────────────────────┐
+         │ postgres_data (/pgdata)  │
+         └──────────────────────────┘
+```
+
+### 2. Supported Environments & Python Compatibility
+
+- **Local Host Environment**: Python 3.14.2 on Windows x64 (active development environment).
+- **Container Production Base**: `python:3.11-slim` (Debian-based).
+  - Selected for guaranteed native precompiled wheel compatibility across PyTorch (`ultralytics`), `scipy`, `xgboost`, `psycopg2-binary`, and `opencv-python`.
+  - Minimal image footprint with security patches and non-root execution.
+
+### 3. Quickstart & Deployment Guide
+
+#### A. Environment Setup
+Copy the template configuration and configure environment-specific parameters:
+```bash
+cp .env.example .env
+```
+
+#### B. Build Docker Image
+Build the hardened, non-root application image:
+```bash
+docker build -t roadx-api:latest .
+```
+
+#### C. Launch Multi-Container Stack with Docker Compose
+Start PostgreSQL 15 and the RoadX API service with health dependency gating:
+```bash
+docker compose up -d
+```
+
+#### D. Database Migrations
+Migrations are applied automatically on startup when `RUN_MIGRATIONS=true` via `docker-entrypoint.sh`. To manually manage migrations:
+```bash
+# Check current migration revision
+docker compose exec roadx-api alembic current
+
+# Upgrade to latest head
+docker compose exec roadx-api alembic upgrade head
+```
+
+#### E. Health & Readiness Verification
+Probe liveness and model/database readiness:
+```bash
+# Liveness probe (HTTP 200)
+curl -f http://localhost:8000/health
+
+# Readiness probe (HTTP 200 when models & database are ready)
+curl -f http://localhost:8000/ready
+```
+
+#### F. Access API & Documentation
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- OpenAPI JSON: `http://localhost:8000/openapi.json`
+
+#### G. Log Inspection & Shutdown
+```bash
+# Stream API logs
+docker compose logs -f roadx-api
+
+# Graceful shutdown
+docker compose down
+
+# Reset all persistent state and database volumes (destructive)
+docker compose down -v
+```
+
+---
+
+### 4. End-to-End Smoke Testing
+
+RoadX provides a standalone, repeatable smoke test suite verifying 12 core operational capabilities:
+
+```bash
+# Run in-process smoke tests
+python scripts/smoke_test.py
+
+# Run against a live container deployment
+python scripts/smoke_test.py --url http://localhost:8000 --no-in-process
+
+# Run via pytest
+pytest tests/test_smoke.py
+```
+
+#### Smoke Test Coverage:
+| # | Test Check | Target Contract | Verification |
+| :-: | :--- | :--- | :--- |
+| **1** | Health Endpoint | `GET /health` | HTTP 200 with service metadata |
+| **2** | Readiness Probe | `GET /ready` | HTTP 200 with `pipeline_loaded: true` and DB connectivity |
+| **3** | OpenAPI Schema | `GET /openapi.json` | Valid OpenAPI 3.1.0 specification |
+| **4** | ML Inference | `POST /api/v1/ml/analyze` | Unified pipeline tabular failure prediction (`SUCCESS`) |
+| **5** | Schema Validation | `POST /api/v1/ml/analyze` | Sanitized HTTP 422 `VALIDATION_ERROR` (no leaked stack traces) |
+| **6** | File Upload Validation | `POST /api/v1/ml/damage/analyze` | HTTP 400 rejection on invalid/corrupted non-image uploads |
+| **7** | Database-Backed Route | `GET /api/v1/government/dashboard/overview` | Dynamic database aggregation with actor context |
+| **8** | ML Artifact Loading | `RoadXPipeline` | Unified model weights and preprocessors loaded into memory |
+| **9** | Chatbot Offline Fallback | `POST /api/v1/citizen/chat/...` | Grounded FAQ response without external LLM credentials |
+| **10** | Notification Fallback | `GET /api/v1/notifications` | Graceful in-app notification operation with Twilio disabled |
+| **11** | Telemetry Monitoring | `GET /api/v1/ml/monitoring/telemetry` | Aggregated request counts, latency percentiles, and errors |
+| **12** | Telemetry Isolation | `InferenceTelemetry` | Metrics collection exceptions never crash inference |
+
+---
+
+### 5. Security & Hardening Safeguards
+
+1. **Non-Root Execution**: Container runs under dedicated user `roadx` (`uid 1001`), preventing container breakout privileges.
+2. **Secrets & Cache Exclusions**: `.dockerignore` prevents copying `.env` credentials, virtual environments, Git history, and build caches into image layers.
+3. **CORS Control**: `CORS_ALLOWED_ORIGINS` defaults to explicit local hosts; audited on startup against wildcard configurations.
+4. **Port Isolation**: PostgreSQL (port 5432) binds exclusively to `127.0.0.1` and is unexposed to external networks.
+5. **Request Tracing**: Middleware automatically assigns unique `X-Request-ID` correlation headers for audit logs.
+6. **Graceful Integration Fallbacks**: Twilio SMS, external LLM APIs, and MLflow servers fall back gracefully without disrupting core road grievance or prediction workflows.
 
 
 

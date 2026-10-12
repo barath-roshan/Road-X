@@ -28,6 +28,18 @@ def check_health() -> HealthResponse:
     )
 
 
+def _check_db_connectivity() -> str:
+    """Probe active database connectivity without exposing connection secrets or stack traces."""
+    try:
+        from sqlalchemy import text
+        from backend.database import engine
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        return "connected"
+    except Exception:
+        return "unreachable"
+
+
 @router.get(
     "/ready",
     response_model=ReadinessResponse,
@@ -45,16 +57,24 @@ def check_readiness(
     service: MLInferenceService = Depends(get_ml_service),
 ) -> ReadinessResponse:
     """Readiness check probing model artifact initialization status."""
+    db_status = _check_db_connectivity()
+
     if service.is_ready:
         return ReadinessResponse(
             status="ready",
             pipeline_loaded=True,
-            details={"service_version": api_settings.version},
+            details={
+                "service_version": api_settings.version,
+                "database": db_status,
+            },
         )
 
     response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
     return ReadinessResponse(
         status="not_ready",
         pipeline_loaded=False,
-        details={"error": service.init_error or "ML components failed loading"},
+        details={
+            "error": service.init_error or "ML components failed loading",
+            "database": db_status,
+        },
     )
