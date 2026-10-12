@@ -59,7 +59,8 @@ htmlcov/
 # Logs & Reports
 logs/
 *.log
-reports/
+reports/*
+!reports/*.md
 
 # Large Datasets & Model Artifacts
 *.db

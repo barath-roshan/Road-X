@@ -45,6 +45,14 @@ class APISettings:
 api_settings = APISettings()
 
 
+def _is_placeholder(value: str | None) -> bool:
+    """Check if a credential contains missing, whitespace, or template placeholder text."""
+    if not value or not value.strip():
+        return True
+    val_lower = value.strip().lower()
+    return "placeholder" in val_lower or val_lower.startswith("your_") or val_lower in ("changeme", "secret", "none")
+
+
 def validate_startup_configuration() -> List[str]:
     """Audit startup configuration for production readiness and security guidelines.
 
@@ -72,9 +80,9 @@ def validate_startup_configuration() -> List[str]:
     try:
         from backend.config import notification_settings
         if notification_settings.twilio_enabled:
-            if not notification_settings.twilio_account_sid or not notification_settings.twilio_auth_token:
+            if _is_placeholder(notification_settings.twilio_account_sid) or _is_placeholder(notification_settings.twilio_auth_token):
                 warnings.append(
-                    "TWILIO_ENABLED is true but TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN is missing. "
+                    "TWILIO_ENABLED is true but TWILIO_ACCOUNT_SID or TWILIO_AUTH_TOKEN is missing or contains an unconfigured placeholder. "
                     "SMS delivery will fail."
                 )
     except Exception:
@@ -83,9 +91,9 @@ def validate_startup_configuration() -> List[str]:
     # 4. LLM provider audit
     try:
         from backend.config import chatbot_settings
-        if chatbot_settings.llm_provider != "mock" and not chatbot_settings.llm_api_key:
+        if chatbot_settings.llm_provider != "mock" and _is_placeholder(chatbot_settings.llm_api_key):
             warnings.append(
-                f"ROADX_LLM_PROVIDER is set to '{chatbot_settings.llm_provider}' but ROADX_LLM_API_KEY is unset. "
+                f"ROADX_LLM_PROVIDER is set to '{chatbot_settings.llm_provider}' but ROADX_LLM_API_KEY is unset or contains an unconfigured placeholder. "
                 "Chatbot will fall back to offline responses."
             )
     except Exception:
