@@ -9,7 +9,7 @@ import { UnauthorizedPage } from '../pages/UnauthorizedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
 import { CitizenPortalPage } from '../pages/CitizenPortalPage'
 import { GovernmentDashboardPage } from '../pages/GovernmentDashboardPage'
-import { ContractorDashboardPlaceholder } from '../pages/ContractorDashboardPlaceholder'
+import { ContractorDashboardPage } from '../pages/ContractorDashboardPage'
 
 export const AppRoutes: React.FC = () => {
   return (
@@ -36,7 +36,7 @@ export const AppRoutes: React.FC = () => {
 
         {/* Contractor Portal Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={['CONTRACTOR']} />}>
-          <Route path="/contractor/*" element={<ContractorDashboardPlaceholder />} />
+          <Route path="/contractor/*" element={<ContractorDashboardPage />} />
         </Route>
 
         {/* 404 Fallback Catch-All */}

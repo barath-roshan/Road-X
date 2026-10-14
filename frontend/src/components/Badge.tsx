@@ -42,3 +42,46 @@ export const RoleBadge: React.FC<{ role: UserRole; className?: string }> = ({ ro
     </Badge>
   )
 }
+
+export const StatusBadge: React.FC<{ status: string; className?: string }> = ({ status, className = '' }) => {
+  const statusStyles: Record<
+    string,
+    { label: string; variant: 'default' | 'citizen' | 'officer' | 'contractor' | 'success' | 'warning' | 'danger' }
+  > = {
+    ASSIGNED: { label: 'Assigned', variant: 'contractor' },
+    IN_PROGRESS: { label: 'In Progress', variant: 'officer' },
+    PENDING_VERIFICATION: { label: 'Pending Verification', variant: 'warning' },
+    COMPLETED: { label: 'Completed', variant: 'success' },
+    CANCELLED: { label: 'Cancelled', variant: 'danger' },
+    OPEN: { label: 'Open', variant: 'default' },
+  }
+
+  const config = statusStyles[status] || { label: status, variant: 'default' }
+
+  return (
+    <Badge variant={config.variant} className={className}>
+      {config.label}
+    </Badge>
+  )
+}
+
+export const PriorityBadge: React.FC<{ priority: string; className?: string }> = ({ priority, className = '' }) => {
+  const prio = (priority || '').toUpperCase()
+  const prioStyles: Record<
+    string,
+    { label: string; variant: 'default' | 'citizen' | 'officer' | 'contractor' | 'success' | 'warning' | 'danger' }
+  > = {
+    CRITICAL: { label: 'Critical', variant: 'danger' },
+    HIGH: { label: 'High', variant: 'warning' },
+    MEDIUM: { label: 'Medium', variant: 'contractor' },
+    LOW: { label: 'Low', variant: 'default' },
+  }
+
+  const config = prioStyles[prio] || { label: priority, variant: 'default' }
+
+  return (
+    <Badge variant={config.variant} className={className}>
+      {config.label}
+    </Badge>
+  )
+}

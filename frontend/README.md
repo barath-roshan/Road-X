@@ -98,7 +98,7 @@ cp .env.example .env.local
 
 | Command | Action |
 |---|---|
-| `npm test` | Runs the full Vitest test suite (`28 passed, 0 failed`) |
+| `npm test` | Runs the full Vitest test suite (`53 passed, 0 failed`) |
 | `npm run typecheck` | Validates TypeScript types across the project with zero errors |
 | `npm run build` | Compiles TypeScript and builds the production bundle (`dist/`) |
 
@@ -228,11 +228,57 @@ The Citizen Portal enables civic users to register road defects, attach visual e
    - Safe text rendering preventing any script or HTML execution.
    - Grounded RAG Source Citations: Expandable attribution cards with source title, category, authority, and similarity score.
    - Graceful offline fallback message if the LLM provider or vector RAG pipeline is temporarily unreachable.
-
+ 
 ---
-
-## 8. Implemented Routes
-
+ 
+## 8. Phase 26 — Contractor Dashboard & Work-Order Execution
+ 
+The Contractor Portal provides authorized road repair contractors with operational tools to manage dispatched maintenance orders, track physical repair milestones, attach completion proof, and address municipal engineer rework requests.
+ 
+### Contractor Modules & Sub-Tabs
+ 
+1. **Executive Overview (`/contractor?tab=overview`):**
+   - Integrates with `GET /api/v1/contractor/dashboard/overview` and `GET /api/v1/contractor/dashboard/workload`.
+   - Real-time aggregate KPI metrics: Total Assigned Orders, Assigned (Awaiting Start), In-Progress Repairs, Pending Verification Sign-off, Completed & Resolved, Rework Required, and Average Progress Percentage.
+   - **Rework Alert Banner:** Prominently highlights returned jobs with a direct navigation shortcut to the Rework Queue.
+   - Overall execution progress bar and personal workload capacity breakdown.
+   - Recent Assigned Work Orders table with one-click inspection triggers.
+ 
+2. **Assigned Work Orders (`/contractor?tab=work-orders`):**
+   - Integrates with `GET /api/v1/contractor/dashboard/work-orders`.
+   - Backend-supported filtering: Status (`ALL`, `ASSIGNED`, `IN_PROGRESS`, `PENDING_VERIFICATION`, `COMPLETED`, `CANCELLED`), Priority (`ALL`, `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`), and multi-column sorting (`created_at`, `priority`, `status`).
+   - Client-side search across work order title, description, road name, and UUIDs.
+   - Displays road location, priority badge, status badge, rework indicator pill, and visual progress bar.
+   - Quick action button to start assigned jobs directly from the list.
+ 
+3. **Work Order Details & Execution Modal (`/contractor?id={work_order_id}`):**
+   - Integrates with `GET /api/v1/contractor/dashboard/work-orders/{id}`.
+   - Contractor-safe grievance description, issue category, and AI damage severity/failure risk level.
+   - Road section name, road code identifier, and GPS coordinates.
+   - **Rework Feedback & Corrective Instructions:** Displays verbatim government engineer rejection notes and timestamps when work has been rejected.
+   - **Lifecycle Execution Controls:**
+     - Acknowledge Receipt: `POST /api/v1/contractor/work-orders/{id}/accept?notes=...`
+     - Start Work: `POST /api/v1/contractor/work-orders/{id}/start?notes=...` (`ASSIGNED` &rarr; `IN_PROGRESS`)
+     - Log Progress: `POST /api/v1/contractor/work-orders/{id}/progress` (0–100% with monotonicity checks; decreases require explicit correction notes).
+     - Attach Evidence: `POST /api/v1/contractor/work-orders/{id}/evidence` (photo metadata with file name, type, size, and storage path).
+     - Submit for Verification: `POST /api/v1/contractor/work-orders/{id}/submit` (`IN_PROGRESS` &rarr; `PENDING_VERIFICATION`).
+   - Chronological progress update history and immutable audit timeline.
+ 
+4. **Government Rework Queue (`/contractor?tab=rework`):**
+   - Integrates with `GET /api/v1/contractor/dashboard/rework`.
+   - Dedicated queue for work orders rejected during government verification.
+   - Displays specific rejection messages explaining deficiency (e.g. compaction depth, asphalt quality).
+   - "Address Rework & Resubmit" action opening the execution modal with pre-populated context.
+ 
+5. **Pending Government Verification (`/contractor?tab=pending-verification`):**
+   - Integrates with `GET /api/v1/contractor/dashboard/pending-verification`.
+   - Read-only queue of completed work orders (100% progress) awaiting official municipal sign-off.
+   - **Governance Safeguard:** Clearly displays that contractors cannot self-verify or mark grievances resolved. Only government officers can approve completion.
+ 
+---
+ 
+## 9. Implemented Routes
+ 
 | Route | Access | Component / Description |
 |---|---|---|
 | `/` | Public | Home landing page with platform overview and portal switcher |
@@ -240,18 +286,19 @@ The Citizen Portal enables civic users to register road defects, attach visual e
 | `/unauthorized` | Authenticated | HTTP 403 Forbidden explanation with return links |
 | `/citizen/*` | Protected (`CITIZEN`) | Citizen Platform & Grievance Tracking (Phase 25 full implementation) |
 | `/government/*` | Protected (`GOVERNMENT_OFFICER`) | Government Officer Portal (Phase 24 full implementation) |
-| `/contractor/*` | Protected (`CONTRACTOR`) | Contractor Portal (Phase 26 placeholder) |
+| `/contractor/*` | Protected (`CONTRACTOR`) | Contractor Portal & Work-Order Execution (Phase 26 full implementation) |
 | `*` | Public | 404 Not Found fallback |
-
+ 
 ---
-
-## 9. Security Notice: Identity & Header-Based Authentication
-
+ 
+## 10. Security Notice: Identity & Header-Based Authentication
+ 
 **Development Architecture Prerequisite:**
 The development environment uses header-based actor context:
 - `X-Actor-User-ID`: Client-provided user identifier
 - `X-Actor-Role`: Client-provided role (`CITIZEN`, `GOVERNMENT_OFFICER`, `CONTRACTOR`)
-
+ 
 **Vulnerability Notice:**
-Client-controlled HTTP headers alone do not constitute cryptographically secure authentication in production. While the backend strictly enforces ownership boundaries (e.g., verifying `grievance.citizen_id == actor.user_id`), any client can set arbitrary header values. For production deployment, header injection must be superseded by signed JWT bearer tokens or server-managed secure session cookies.
+Client-controlled HTTP headers alone do not constitute cryptographically secure authentication in production. While the backend strictly enforces ownership boundaries (e.g., verifying `work_order.assigned_contractor_id == actor.user_id`), any client can set arbitrary header values. For production deployment, header injection must be superseded by signed JWT bearer tokens or server-managed secure session cookies.
+
 
