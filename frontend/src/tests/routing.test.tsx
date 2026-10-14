@@ -38,7 +38,7 @@ describe('Role-Aware Routing & Protected Route Enforcement', () => {
     )
 
     expect(screen.getByRole('heading', { name: /citizen platform/i })).toBeInTheDocument()
-    expect(screen.getByText(/phase 23 frontend foundation active/i)).toBeInTheDocument()
+    expect(screen.getByText(/report road damage, track repair milestones/i)).toBeInTheDocument()
   })
 
   it('blocks authenticated citizen from accessing /government and redirects to /unauthorized', () => {

@@ -7,7 +7,7 @@ import { HomePage } from '../pages/HomePage'
 import { LoginPage } from '../pages/LoginPage'
 import { UnauthorizedPage } from '../pages/UnauthorizedPage'
 import { NotFoundPage } from '../pages/NotFoundPage'
-import { CitizenDashboardPlaceholder } from '../pages/CitizenDashboardPlaceholder'
+import { CitizenPortalPage } from '../pages/CitizenPortalPage'
 import { GovernmentDashboardPage } from '../pages/GovernmentDashboardPage'
 import { ContractorDashboardPlaceholder } from '../pages/ContractorDashboardPlaceholder'
 
@@ -26,7 +26,7 @@ export const AppRoutes: React.FC = () => {
 
         {/* Citizen Portal Protected Route */}
         <Route element={<ProtectedRoute allowedRoles={['CITIZEN']} />}>
-          <Route path="/citizen/*" element={<CitizenDashboardPlaceholder />} />
+          <Route path="/citizen/*" element={<CitizenPortalPage />} />
         </Route>
 
         {/* Government Officer Dashboard Protected Route */}

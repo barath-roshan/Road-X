@@ -174,14 +174,84 @@ The Government Officer Dashboard provides authorized municipal personnel with ad
 
 ---
 
-## 7. Implemented Routes
+## 7. Phase 25 — Citizen Portal & Grievance Tracking
+
+The Citizen Portal enables civic users to register road defects, attach visual evidence, track repairs across chronological milestones, view municipal traffic advisories and detours, and consult the RoadX Conversational RAG Assistant.
+
+### Citizen Modules & Sub-Tabs
+
+1. **Home & Overview (`/citizen?tab=overview`):**
+   - KPI metrics: Reports Logged, In Progress, Resolved Reports, and Active Road Advisories.
+   - Quick Action links to Report Problem, Track Grievances, and Ask AI Assistant.
+   - Recent Reports summary feed and Active Road Closures preview cards.
+
+2. **Report a Road Defect (`/citizen?tab=report`):**
+   - Validated submission form integrating `POST /api/v1/citizen/grievances`.
+   - Supported defect categories: `POTHOLE`, `WATERLOGGING`, `STREETLIGHT`, `ROAD_CRACK`.
+   - Description field: 5 to 2000 characters with live character counter.
+   - Incident Location:
+     - Real browser geolocation detection via `navigator.geolocation.getCurrentPosition` (with explicit permission and accuracy metrics).
+     - Manual latitude (-90.0 to +90.0) and longitude (-180.0 to +180.0) coordinates input.
+     - Optional road segment identifier.
+   - Visual Evidence Upload:
+     - Supports JPEG, PNG, and WebP up to the backend limit of 10 MB.
+     - Thumbnail preview, file metadata extraction, and removal control.
+     - Initial `evidence_items` metadata payload attached to submission.
+   - Double-submission prevention and confirmed submission success card.
+
+3. **My Grievances (`/citizen?tab=my-grievances`):**
+   - Integrates with `GET /api/v1/citizen/grievances`.
+   - Citizen-scoped data retrieval (strictly enforces `citizen_id == actor.user_id`).
+   - Search bar across descriptions, categories, and report IDs.
+   - Filter dropdowns by status (`SUBMITTED`, `UNDER_REVIEW`, `IN_PROGRESS`, `PENDING_VERIFICATION`, `RESOLVED`, `REJECTED`) and defect category.
+   - Empty state illustration with quick action button to report a defect.
+
+4. **Grievance Details & Milestone Timeline:**
+   - Modal view integrating `GET /api/v1/citizen/grievances/{id}`.
+   - Complete report summary, road name, and GPS coordinates.
+   - Attached evidence gallery and inline additional photo attachment (`POST /api/v1/citizen/grievances/{id}/evidence`).
+   - Citizen-safe ML Decision Support Summary: detected issue, severity tier, road risk level, and maintenance priority.
+   - Contractor Repair Progress: work order ID, status display, visual progress bar (0–100%), and last update timestamp.
+   - Municipal Audit Rework Notice: Displays public rework message if an officer reverts a work order for contractor correction.
+   - Chronological Milestone History: Event types, timestamps, and citizen-friendly status messages.
+
+5. **Road Operations & Detours (`/citizen?tab=road-operations`):**
+   - Read-only public traffic advisory feed integrating `GET /api/v1/citizen/road-operations`.
+   - Filter by operational status (`ACTIVE`, `PLANNED`, `ALL`, `COMPLETED`) and type (`ROAD_CLOSURE`, `DETOUR`, `LANE_RESTRICTION`, `HAZARD_BLOCK`).
+   - Detailed closure title, description, reason, start schedule, and expected end time.
+   - Recommended Detour Routes: Alternative route title, instructions, diverting road name, and extra travel distance (+km).
+
+6. **RoadX Citizen AI Assistant (`/citizen?tab=chatbot`):**
+   - Grounded RAG assistant integrating `POST /api/v1/citizen/chat/conversations`, `GET /api/v1/citizen/chat/conversations`, and `POST /api/v1/citizen/chat/conversations/{id}/messages`.
+   - Session management: Sidebar list of citizen's past chat sessions with new conversation creation.
+   - Suggested prompt chips for quick inquiries.
+   - Safe text rendering preventing any script or HTML execution.
+   - Grounded RAG Source Citations: Expandable attribution cards with source title, category, authority, and similarity score.
+   - Graceful offline fallback message if the LLM provider or vector RAG pipeline is temporarily unreachable.
+
+---
+
+## 8. Implemented Routes
 
 | Route | Access | Component / Description |
 |---|---|---|
 | `/` | Public | Home landing page with platform overview and portal switcher |
 | `/login` | Public | Authentication page with role tabs and demo presets |
 | `/unauthorized` | Authenticated | HTTP 403 Forbidden explanation with return links |
-| `/citizen/*` | Protected (`CITIZEN`) | Citizen Platform (Phase 25 placeholder) |
+| `/citizen/*` | Protected (`CITIZEN`) | Citizen Platform & Grievance Tracking (Phase 25 full implementation) |
 | `/government/*` | Protected (`GOVERNMENT_OFFICER`) | Government Officer Portal (Phase 24 full implementation) |
 | `/contractor/*` | Protected (`CONTRACTOR`) | Contractor Portal (Phase 26 placeholder) |
 | `*` | Public | 404 Not Found fallback |
+
+---
+
+## 9. Security Notice: Identity & Header-Based Authentication
+
+**Development Architecture Prerequisite:**
+The development environment uses header-based actor context:
+- `X-Actor-User-ID`: Client-provided user identifier
+- `X-Actor-Role`: Client-provided role (`CITIZEN`, `GOVERNMENT_OFFICER`, `CONTRACTOR`)
+
+**Vulnerability Notice:**
+Client-controlled HTTP headers alone do not constitute cryptographically secure authentication in production. While the backend strictly enforces ownership boundaries (e.g., verifying `grievance.citizen_id == actor.user_id`), any client can set arbitrary header values. For production deployment, header injection must be superseded by signed JWT bearer tokens or server-managed secure session cookies.
+
